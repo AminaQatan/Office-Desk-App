@@ -1331,7 +1331,8 @@ function openSettings(){
     <details class="dd"><summary>المناسبات المفعّلة (${en.size} من ${OCC.length})</summary><div class="occl">${OCC_GROUPS.map(([g,l])=>`<h4>${l}</h4>`+OCC.filter(o=>o.k===g).map(o=>`<label><input type="checkbox" name="occ" value="${o.id}"${en.has(o.id)?' checked':''}>${o.e} ${esc(o.n)}${o.cc?` <small class="note">(${CC_NAME[o.cc]})</small>`:''}</label>`).join('')).join('')}</div></details>
     <h3 class="sh">مشاهد التركيز وأصواتها</h3>
     <div class="field"><p class="note">${MEDIA==='./media/'?'المشاهد والأصوات محفوظة داخل تطبيقك (مجلد media).':'المشاهد والأصوات تُحمَّل الآن من الخادم الخارجي، لأن مجلد media غير موجود في تطبيقك بعد.'}</p>
-      <div class="row"><button class="btn line" type="button" data-a="media-cache">حفظ كل المشاهد والأصوات للعمل بدون إنترنت</button></div></div>
+      <div class="row"><button class="btn line" type="button" data-a="media-cache">حفظ كل المشاهد والأصوات للعمل بدون إنترنت</button><button class="btn line" type="button" data-a="media-zip">تنزيل المشاهد والأصوات في ملف ZIP</button></div>
+      <p class="note">ملف ZIP فيه مجلد media بكل الصور والأصوات (54 ملفاً). ارفعي المجلد إلى GitHub بجانب index.html، فتصير المشاهد داخل تطبيقك.</p></div>
     <h3 class="sh">النسخة الاحتياطية</h3>
     <div class="field"><p class="note">المهام والملاحظات والتسجيلات والملفات والإعدادات محفوظة في هذا الجهاز فقط. احفظي نسخة لتنقليها إلى جهاز آخر أو تسترجعيها لاحقاً.</p>
       <div class="row"><button class="btn line" type="button" data-a="bk-save">حفظ نسخة احتياطية</button><label class="btn line">استرجاع نسخة<input type="file" class="vh" id="s-restore" accept="application/json,.json"></label></div></div>
@@ -2402,6 +2403,27 @@ async function cacheMedia(){if(MEDIA!=='./media/'){toast('المشاهد ما ز
   const fs=mediaFiles();let n=0;toast('أحفظ المشاهد والأصوات في هذا الجهاز…');
   for(const f of fs){try{const r=await fetch(MEDIA+f);if(r.ok){await r.arrayBuffer();n++}}catch(e){}if(n&&n%10===0)toast('حفظت '+n+' من '+fs.length)}
   toast(n===fs.length?'كل المشاهد والأصوات تعمل الآن بدون إنترنت':'حفظت '+n+' من '+fs.length+'، والباقي يحتاج إنترنت')}
+/* media.zip: the app (opened from its own link, where the old server answers) downloads every scene and sound and packs them,
+   inside a media/ folder, into a plain zip the person can upload to GitHub */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRC_T[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function makeZip(files){const enc=new TextEncoder(),parts=[],cent=[];let off=0;const d=new Date();
+  const tm=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1),dt=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  for(const f of files){const nm=enc.encode(f.name),crc=crc32(f.data),sz=f.data.length,l=new DataView(new ArrayBuffer(30)),c=new DataView(new ArrayBuffer(46));
+    l.setUint32(0,0x04034b50,true);l.setUint16(4,20,true);l.setUint16(6,0x0800,true);l.setUint16(10,tm,true);l.setUint16(12,dt,true);l.setUint32(14,crc,true);l.setUint32(18,sz,true);l.setUint32(22,sz,true);l.setUint16(26,nm.length,true);
+    c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(12,tm,true);c.setUint16(14,dt,true);c.setUint32(16,crc,true);c.setUint32(20,sz,true);c.setUint32(24,sz,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+    parts.push(l.buffer,nm,f.data);cent.push(c.buffer,nm);off+=30+nm.length+sz}
+  const cs=cent.reduce((a,b)=>a+b.byteLength,0),e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cent,e.buffer],{type:'application/zip'})}
+let zipBusy=false;
+async function mediaZip(){if(zipBusy)return;zipBusy=true;const fs=mediaFiles(),got=[],bad=[];toast('أجهّز ملف المشاهد والأصوات… لا تغلقي التطبيق');
+  try{for(const f of fs){try{const r=await fetch(REMOTE_MEDIA+f,{mode:'cors',cache:'no-store'});if(!r.ok)throw new Error(r.status);got.push({name:'media/'+f,data:new Uint8Array(await r.arrayBuffer())});
+        if(got.length%6===0)toast('نزّلت '+got.length+' من '+fs.length)}catch(e){bad.push(f)}}
+    if(!got.length){toast('ما قدرت أنزّل الملفات من الخادم القديم. تأكدي من الإنترنت وجرّبي مرة ثانية');return}
+    await shareFile(makeZip(got),'media.zip','مشاهد التركيز وأصواتها');
+    toast(bad.length?'جهّزت '+got.length+' ملفاً، وتعذّر '+bad.length+': '+bad.slice(0,3).join('، '):'جهّزت كل الملفات ('+got.length+') في media.zip')}
+  finally{zipBusy=false}}
 let AMB=null;
 function amb(){if(AMB)return AMB;let m=document.getElementById('ambMount');
   if(!m){m=document.createElement('div');m.id='ambMount';m.className='ambm';document.body.insertBefore(m,document.getElementById('app'))}
@@ -2494,6 +2516,7 @@ document.addEventListener('click',async e=>{
       else{b.dataset.armed='1';b.classList.add('armed');b.textContent='اضغطي مرة ثانية للحذف';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.classList.remove('armed');b.textContent='حذف'}},3500)}break}
     case 'bk-save':backupSave();break;
     case 'media-cache':cacheMedia();break;
+    case 'media-zip':mediaZip();break;
     case 'del':{saveTasks((lsGet('ds-tasks',[])||[]).filter(x=>x.id!==b.dataset.id));render();break}
     case 'skip':S.skip++;render();break;
     case 'focus-start':{const f=fGet();if(!f.end){f.end=Date.now()+fLeft(f);fSet(f)}if(S.audioOK)amb().unlock();amb().timer(true);unpeek();const i=PAGES.findIndex(p=>p[0]==='focus');if(i>=0)go(i);break}
