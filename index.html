@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#3D405B">
 
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="preload" href="./fonts/readex-pro.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./readex-pro.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,7 +17,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 
 <!--
-  شاشة المكتب: صفحة واحدة تشتغل على أي متصفح، بدون إنترنت (حتى الخط محفوظ داخله في مجلد fonts).
+  شاشة المكتب: صفحة واحدة تشتغل على أي متصفح، بدون إنترنت (حتى الخط محفوظ داخله).
   عدّل الإعدادات تحت (داخل desk-config) أو من زر ⚙️ داخل الشاشة نفسها.
   البيانات (المهام، الملاحظات، التسجيلات، الملفات، الإعدادات) تنحفظ في متصفح جهازك فقط، ومن الإعدادات تقدر تحفظ نسخة احتياطية.
 -->
@@ -45,12 +45,12 @@
 </script>
 <style>
 /* Layout: one portrait page at a time (time, tasks, focus, adhkar) with a tab bar at the bottom. Colors come from the chosen palette and switch light/dark with the time of day. */
-/* The one font of the app: Readex Pro (SIL Open Font License 1.1, see fonts/OFL.txt), kept in fonts/ so every page, button,
+/* The one font of the app: Readex Pro (SIL Open Font License 1.1, see OFL.txt), kept next to index.html so every page, button,
    note and greeting card looks the same on every device, online or offline. Same three weights the original loaded:
    300 and 500 draw as 400, 600 as 700, 800 as the font's boldest. */
-@font-face{font-family:"Readex Pro";src:url(./fonts/readex-pro.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Readex Pro";src:url(./fonts/readex-pro.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap}
-@font-face{font-family:"Readex Pro";src:url(./fonts/readex-pro.woff2) format("woff2");font-weight:800;font-style:normal;font-display:swap}
+@font-face{font-family:"Readex Pro";src:url(./readex-pro.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Readex Pro";src:url(./readex-pro.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"Readex Pro";src:url(./readex-pro.woff2) format("woff2");font-weight:800;font-style:normal;font-display:swap}
 :root{--u:min(1vw,.5625vh);--f:"Readex Pro","IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif;
   --bg:#FDF6EC;--surface:#FFFDF8;--card:#F4EADB;--fg:#2B2D42;--muted:#6B6D80;--line:#E7DCCB;--accent:#E07A5F;--accentInk:#B8553C;--accentFg:#fff;
   --gold:#F2CC8F;--goldInk:#8E6A22;--ok:#4F8A6E;--hero:#3D405B;--heroFg:#FDF6EC;--heroMuted:#C9CADB;--heroTrack:rgba(253,246,236,.16);--olive:#81B29A}
@@ -449,7 +449,7 @@ body.calm .top,body.calm .nav{opacity:0;pointer-events:none}
 body.calm,body.calm *{cursor:none!important}
 @media (prefers-reduced-motion:reduce){.focus,.fcap,body.fmini .focus,body.fmini .fcap,body.fmini.calm .fcap,.top,.nav{transition:none!important}body.fmini .focus,.fcap{transform:none}}
 
-/* ===== additions: header Hijri, occasions, tasks table, notes, reminders, mascot ===== */
+/* ===== additions: header Hijri, occasions, tasks table, notes, reminders ===== */
 #occbg{position:fixed;inset:0;z-index:0;pointer-events:none;display:none}
 textarea{font:inherit;color:inherit}
 .btn svg{width:18px;height:18px;flex:none}
@@ -591,11 +591,8 @@ details.dd summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;a
 .pdates input{background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-size:15px;width:100%}
 .hours{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .hours select{width:auto;flex:1;min-width:110px}
-/* celebration + mascot */
+/* celebration */
 .confetti{position:fixed;inset:0;z-index:60;pointer-events:none;width:100%;height:100%}
-.mascot{width:min(150px,38vw);height:auto;color:var(--accent);display:block;margin:0 auto}
-.startc .mascot{width:120px;margin-bottom:-6px}
-.nempty .mascot{width:120px}
 @media (prefers-reduced-motion:reduce){.micb.live,[data-a="dict"].live,.recdot{animation:none}.ncard{transform:none}}
 
 .amb-emo{font-size:26px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
@@ -635,7 +632,7 @@ const PALETTES={
   blossom:{light:{bg:'#FFF6F9',surface:'#FFFFFF',card:'#FCE6EE',fg:'#3A2440',muted:'#83708A',line:'#F3D6E1',accent:'#E2598A',accentInk:'#B83C68',accentFg:'#FFFFFF',gold:'#FFD39B',goldInk:'#94582B',ok:'#3F9A7A',olive:'#8FC9AE',hero:'#6B3A6E',heroFg:'#FFF6F9',heroMuted:'#E6CBE7'},
         dark:{bg:'#1E1622',surface:'#2A1F2F',card:'#36293C',fg:'#FBEFF4',muted:'#C4AFC6',line:'#46364C',accent:'#F38BAE',accentInk:'#F8A9C4',accentFg:'#1E1622',gold:'#FFD39B',goldInk:'#FFD39B',ok:'#7FD1B0',olive:'#7FD1B0',hero:'#3A2840',heroFg:'#FBEFF4',heroMuted:'#C4AFC6'}}};
 /* Arabic fonts from Google Fonts: [family, Arabic label, weights that family really has] */
-const APP_FONT='Readex Pro';   /* the app's only font, from fonts/readex-pro.woff2 */
+const APP_FONT='Readex Pro';   /* the app's only font, from readex-pro.woff2 */
 const ALL_PAGES=[['time','الوقت'],['tasks','مهامي'],['notes','ملاحظاتي'],['focus','التركيز'],['adhkar','الأذكار']];
 const lsGet=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -644,7 +641,7 @@ function settings(){
   const s={name:typeof o.name==='string'?o.name:(CFG.name||''),city:CITIES[o.city]?o.city:(CITIES[CFG.city]?CFG.city:'muscat'),
     method:METHODS[o.method]?o.method:(METHODS[CFG.method]?CFG.method:'uq'),theme:['auto','light','dark'].includes(o.theme)?o.theme:(['auto','light','dark'].includes(CFG.theme)?CFG.theme:'auto'),
     clock:(o.clock||CFG.clock)==='24'?'24':'12',adj:{fajr:0,dhuhr:0,asr:0,maghrib:0,isha:0},hijriAdj:0,
-    palette:PALETTES[o.palette]?o.palette:(PALETTES[CFG.palette]?CFG.palette:'navy'),mascot:o.mascot===true,
+    palette:PALETTES[o.palette]?o.palette:(PALETTES[CFG.palette]?CFG.palette:'navy'),
     adhan:['aqsa','file','chime'].includes(o.adhan)?o.adhan:'aqsa',fajr:['same','file','chime'].includes(o.fajr)?o.fajr:'same',
     pre:[0,5,10,15].includes(+o.pre)?+o.pre:10,click:['pop','bubble','bell','off'].includes(o.click)?o.click:'pop',
     nudge:[0,30,60,90].includes(+o.nudge)?+o.nudge:60,work:[7,15],dict:o.dict==='en'?'en':'ar',
@@ -789,8 +786,6 @@ const EMOJI_FONT='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Andro
 ICON.share='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.4M8.3 13.2l7.4 4.4"/></svg>';
 ICON.mic='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
 
-/* «حاشي»: an original baby-camel mascot */
-const MASCOT='<svg class="mascot" viewBox="0 0 140 120" aria-hidden="true"><ellipse cx="76" cy="113" rx="46" ry="5" fill="currentColor" opacity=".14"/><g fill="#E9BC8E"><rect x="52" y="84" width="9" height="25" rx="4.5"/><rect x="65" y="86" width="9" height="23" rx="4.5"/><rect x="90" y="86" width="9" height="23" rx="4.5"/><rect x="103" y="84" width="9" height="25" rx="4.5"/><ellipse cx="82" cy="76" rx="37" ry="22"/><ellipse cx="85" cy="57" rx="17" ry="14"/></g><path d="M55 72C46 60 41 47 43 34" stroke="#E9BC8E" stroke-width="15" stroke-linecap="round" fill="none"/><ellipse cx="41" cy="28" rx="18" ry="15" fill="#E9BC8E"/><ellipse cx="27" cy="33" rx="10.5" ry="8" fill="#F6D9B9"/><ellipse cx="45" cy="14.5" rx="3.8" ry="6" fill="#D9A574" transform="rotate(22 45 14.5)"/><ellipse cx="35" cy="13.5" rx="3.4" ry="5.6" fill="#D9A574" transform="rotate(-16 35 13.5)"/><path d="M37 13c2-5 7-5 8-1" stroke="#C98F5E" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="36" cy="25" r="3.5" fill="#3A2440"/><circle cx="47" cy="25" r="3.5" fill="#3A2440"/><circle cx="37.3" cy="23.7" r="1.2" fill="#fff"/><circle cx="48.3" cy="23.7" r="1.2" fill="#fff"/><ellipse cx="53" cy="32" rx="4.2" ry="2.6" fill="#FF9EB5" opacity=".85"/><ellipse cx="31" cy="31.5" rx="3" ry="2" fill="#FF9EB5" opacity=".6"/><path d="M23 36q3.5 3 7 0" stroke="#3A2440" stroke-width="1.7" fill="none" stroke-linecap="round"/><circle cx="22" cy="31" r="1.1" fill="#3A2440"/><path d="M40 47q10 6 20 0l-1 7q-9 5-18 0z" fill="currentColor"/><path d="M57 53l5 9-6 1z" fill="currentColor"/><path d="M118 70q9 4 6 15" stroke="#D9A574" stroke-width="4" fill="none" stroke-linecap="round"/></svg>';
 
 /* ---------- occasions ---------- */
 const CITY_CC={muscat:'OM',sohar:'OM',nizwa:'OM',sur:'OM',salalah:'OM',buraimi:'OM',dubai:'AE',abudhabi:'AE',sharjah:'AE',riyadh:'SA',jeddah:'SA',makkah:'SA',madinah:'SA',dammam:'SA',doha:'QA',kuwait:'KW',manama:'BH'};
@@ -1040,7 +1035,7 @@ function nCard(n){const ttl=n.title?`<b class="nt">${esc(n.title)}</b>`:'';let b
 function pNotes(){const f=S.nf||'all',all=notes().sort((a,b)=>(b.upd||0)-(a.upd||0)),list=f==='all'?all:all.filter(n=>n.type===f);
   let h=`<div class="nbar"><button class="nb" data-a="n-new" data-v="note">📝<span>ملاحظة</span></button><button class="nb" data-a="n-new" data-v="list">✅<span>قائمة</span></button><button class="nb" data-a="n-rec">🎙️<span>تسجيل</span></button><label class="nb">📎<span>صورة أو ملف</span><input type="file" class="vh" id="n-file" multiple></label></div>`;
   h+=`<div class="seg nf" role="group" aria-label="تصفية الملاحظات">${[['all','الكل'],['note','ملاحظات'],['list','قوائم'],['voice','تسجيلات'],['file','ملفات']].map(([k,l])=>`<button data-a="nf" data-v="${k}" aria-pressed="${k===f}">${l}</button>`).join('')}</div>`;
-  if(!list.length)h+=`<section class="nempty">${ST.mascot?MASCOT:''}<b>${all.length?'لا يوجد شيء هنا بعد':'لا توجد ملاحظات بعد'}</b><p>اكتبي ملاحظة لاصقة، أو قائمة تحقق، أو سجّلي ملاحظة صوتية، أو أرفقي صورة أو ملفاً.</p></section>`;
+  if(!list.length)h+=`<section class="nempty"><b>${all.length?'لا يوجد شيء هنا بعد':'لا توجد ملاحظات بعد'}</b><p>اكتبي ملاحظة لاصقة، أو قائمة تحقق، أو سجّلي ملاحظة صوتية، أو أرفقي صورة أو ملفاً.</p></section>`;
   else h+=`<div class="ngrid">${list.map(nCard).join('')}</div>`;
   return h}
 async function nThumbs(){for(const img of document.querySelectorAll('img[data-nimg]')){const id=img.dataset.nimg;if(NURL.has(id)){img.src=NURL.get(id);continue}const r=await idbGet('n:'+id);if(r&&r.blob)img.src=nUrl(id,r.blob)}}
@@ -1228,7 +1223,7 @@ function pTasks(){const view=S.tv==='week'?'week':'today';
       ${open.length>1?'<button class="btn line" data-a="skip">مو الحين</button>':''}</div></section>`;
     const rest=all.filter(x=>x!==t);
     if(rest.length)h+=`<div class="lbl">مهام اليوم</div><div class="list">${rest.map(tRow).join('')}</div>`;
-  }else h+=`<section class="now">${ST.mascot&&!done?MASCOT:''}<div class="lbl">شغلك الحين</div><h2>${done?'خلصتِ مهام اليوم 🎉':'وش أهم مهام اليوم؟'}</h2><p>${done?'أضيفي مهمة جديدة لو عندك شي ثاني.':'اكتبي أول مهمة تحت، واختاري لها إيموجي ويوماً ووقتاً إن أردتِ.'}</p></section>${done?`<div class="list">${all.map(tRow).join('')}</div>`:''}`;
+  }else h+=`<section class="now"><div class="lbl">شغلك الحين</div><h2>${done?'خلصتِ مهام اليوم 🎉':'وش أهم مهام اليوم؟'}</h2><p>${done?'أضيفي مهمة جديدة لو عندك شي ثاني.':'اكتبي أول مهمة تحت، واختاري لها إيموجي ويوماً ووقتاً إن أردتِ.'}</p></section>${done?`<div class="list">${all.map(tRow).join('')}</div>`:''}`;
   h+=addForm();
   if(done||sk>1)h+=`<div class="streak">${done?`<span class="num">✅ خلصتِ اليوم ${done}</span>`:''}${sk>1?`<span class="num">🔥 ${sk} أيام إنجاز متتالية</span>`:''}</div>`;
   return h}
@@ -1248,7 +1243,7 @@ function render(){
     ${S.nudge&&!S.banner?`<div class="nudge" role="status"><span>${esc(S.nudge.msg)}</span><button data-a="nudge-x">تم</button></div>`:''}
     <main class="page" id="page" data-p="${key}"${key==='tasks'&&S.tv==='week'?' data-v="week"':''}>${RENDER[key](st)}</main>${key==='focus'?fCap():''}
     ${PAGES.length>1?`<nav class="nav" style="grid-template-columns:repeat(${PAGES.length},1fr)" aria-label="الصفحات">${PAGES.map(([k,l],i)=>`<button data-a="go" data-v="${i}" aria-current="${i===S.page?'page':'false'}">${l}</button>`).join('')}</nav>`:''}
-  </div>${S.started?'':`<div class="start"><div class="startc">${ST.mascot?MASCOT:''}<div class="lbl">شاشة المكتب</div><h1>${new Date().getHours()<12?'صباح الخير':'هلا'}${ST.name?' يا '+esc(ST.name):''}</h1>
+  </div>${S.started?'':`<div class="start"><div class="startc"><div class="lbl">شاشة المكتب</div><h1>${new Date().getHours()<12?'صباح الخير':'هلا'}${ST.name?' يا '+esc(ST.name):''}</h1>
     <p>اضغط «ابدأ» عشان يشتغل صوت الأذان، وتاخذ الشاشة كاملة، وما تطفي.</p><button class="btn primary" data-a="start">ابدأ</button><button class="btn line" data-a="start-quiet">بدون صوت</button></div></div>`}`;
   for(const id in keep){if(S.clear&&S.clear.includes(id))continue;const el=document.getElementById(id);if(el)el.value=keep[id]}
   if(fid){const el=document.getElementById(fid);if(el)try{el.focus({preventScroll:true})}catch(e){}}
@@ -1307,7 +1302,6 @@ function openSettings(){
     <div class="field"><span class="lab">التاريخ الهجري</span><div class="adj"><div><span id="s-hv">${esc(hDate())}</span><span class="ctl"><button type="button" data-a="hadj" data-d="-1" aria-label="يوم قبل">−</button><span class="num" id="s-h">${ST.hijriAdj>0?'+':''}${ST.hijriAdj} يوم</span><button type="button" data-a="hadj" data-d="1" aria-label="يوم بعد">+</button></span></div></div></div>
     <div class="field"><span class="lab">الثيم</span>${chipsH('s-theme',[['auto','تلقائي (داكن بعد المغرب)'],['light','فاتح'],['dark','داكن']],ST.theme)}</div>
     <div class="field"><span class="lab">الألوان</span>${chipsH('s-pal',[['navy','كحلي (الأصلي)'],['pearl','لؤلؤي 🤍'],['blossom','كيوت وردي 🌸'],['sand','رملي'],['sea','بحري'],['ink','حبري']],ST.palette)}</div>
-    <div class="field"><span class="lab">حاشي، الصديق الصغير 🐪</span>${chipsH('s-mascot',[['1','يظهر'],['0','مخفي']],ST.mascot?'1':'0')}</div>
     <div class="field"><span class="lab">الساعة</span>${chipsH('s-clock',[['12','12 ساعة'],['24','24 ساعة']],ST.clock)}</div>
     <h3 class="sh">الأذان</h3>
     <div class="field"><span class="lab">صوت الأذان</span>${chipsH('s-adhan',[['aqsa',AQSA.name],['file','ملف من جهازي'],['chime','تنبيه خفيف']],ST.adhan)}
@@ -1331,7 +1325,7 @@ function openSettings(){
     <div class="field"><span class="lab">طريقة العرض</span><div class="tgl">${[['hijriTop','التاريخ الهجري بارز أعلى كل الصفحات'],['hijriTasks','التاريخ الهجري في جدول المهام'],['countdown','عدّاد المناسبة القادمة'],['greet','زر بطاقة التهنئة']].map(([k,l])=>`<label><input type="checkbox" id="s-${k}"${ST[k]?' checked':''}>${l}</label>`).join('')}</div></div>
     <details class="dd"><summary>المناسبات المفعّلة (${en.size} من ${OCC.length})</summary><div class="occl">${OCC_GROUPS.map(([g,l])=>`<h4>${l}</h4>`+OCC.filter(o=>o.k===g).map(o=>`<label><input type="checkbox" name="occ" value="${o.id}"${en.has(o.id)?' checked':''}>${o.e} ${esc(o.n)}${o.cc?` <small class="note">(${CC_NAME[o.cc]})</small>`:''}</label>`).join('')).join('')}</div></details>
     <h3 class="sh">مشاهد التركيز وأصواتها</h3>
-    <div class="field"><p class="note">كل المشاهد والأصوات محفوظة داخل تطبيقك (مجلد media)، ولا يعتمد على أي خادم خارجي. الأصوات الطبيعية من مشروع Moodist المفتوح المصدر (رخصة CC0 ورخصة محتوى Pixabay)، والرعد مصنوع داخل التطبيق.</p>
+    <div class="field"><p class="note">كل المشاهد والأصوات محفوظة داخل تطبيقك نفسه، ولا يعتمد على أي خادم خارجي. الأصوات الطبيعية من مشروع Moodist المفتوح المصدر (رخصة CC0 ورخصة محتوى Pixabay)، والرعد مصنوع داخل التطبيق.</p>
       <div class="row"><button class="btn line" type="button" data-a="media-cache">حفظ كل المشاهد والأصوات للعمل بدون إنترنت</button></div></div>
     <h3 class="sh">النسخة الاحتياطية</h3>
     <div class="field"><p class="note">المهام والملاحظات والتسجيلات والملفات والإعدادات محفوظة في هذا الجهاز فقط. احفظي نسخة لتنقليها إلى جهاز آخر أو تسترجعيها لاحقاً.</p>
@@ -2358,9 +2352,9 @@ function createAmbience(opts){
 }
 
 /* ---------- «الجو»: scene + sounds behind the focus page ---------- */
-/* everything «الجو» plays or shows lives in the app's own media/ folder: the nature sounds (open licences, see README)
-   and the owner's own photo scenes listed in MY_SCENES */
-const MEDIA='./media/';
+/* everything «الجو» plays or shows sits in the app's own main folder, next to index.html: the nature sounds
+   (open licences, see README) and the owner's own photo and video scenes listed in MY_SCENES */
+const MEDIA='./';
 /* the owner's scenes. Overlay coordinates are fractions of each picture: win = window glass for rain, lights = glows, steam = cup rims, fx = rain/snow/stars/petals/fireflies/shimmer/mist areas */
 const MY_SCENES={"desk":{"name":"مكتب المطر","cat":"cozy","amb":"rain-window","mus":"none","thunder":false,"tall":{"img":"scene-desk.jpg","win":[0.5901,0,0.4099,0.81],"lights":[{"x":0.1187,"y":0.42,"r":0.4141,"k":"lamp"}]},"tab":{"img":"scene-desk-tab.jpg","win":[0.6075,0,0.3925,0.81],"lights":[{"x":0.2539,"y":0.42,"r":0.3106,"k":"lamp"}],"steam":[{"x":0.0342,"y":0.63}]},"land":{"img":"scene-desk-land.jpg","win":[0.4667,0,0.4636,0.81],"lights":[{"x":0.2678,"y":0.42,"r":0.1747,"k":"lamp"}],"steam":[{"x":0.1442,"y":0.63}]},"wide":{"img":"scene-desk-wide.jpg","win":[0.545,0,0.345,0.81],"lights":[{"x":0.397,"y":0.42,"r":0.13,"k":"lamp"}],"steam":[{"x":0.305,"y":0.63}]}},"cafe":{"name":"مقهى تحت المطر","cat":"cozy","amb":"rain-cafe","mus":"none","thunder":false,"tall":{"img":"scene-cafe.jpg","win":[0,0.05,1,0.57],"lights":[{"x":0.9556,"y":0.52,"r":0.3822,"k":"lamp"}],"steam":[{"x":0.1752,"y":0.705}]},"tab":{"img":"scene-cafe-tab.jpg","win":[0.0464,0.05,0.9078,0.57],"lights":[{"x":0.8347,"y":0.52,"r":0.2867,"k":"lamp"}],"steam":[{"x":0.2494,"y":0.705}]},"land":{"img":"scene-cafe-land.jpg","win":[0.3249,0.05,0.5106,0.57],"lights":[{"x":0.7684,"y":0.52,"r":0.1613,"k":"lamp"}],"steam":[{"x":0.4391,"y":0.705}]},"wide":{"img":"scene-cafe-wide.jpg","win":[0.47,0.05,0.38,0.57],"lights":[{"x":0.8,"y":0.52,"r":0.12,"k":"lamp"},{"x":0.02,"y":0.26,"r":0.04,"k":"lamp"},{"x":0.14,"y":0.28,"r":0.04,"k":"lamp"}],"steam":[{"x":0.555,"y":0.705}]}},"village":{"name":"قرية جبلية","cat":"nature","amb":"mountain-morning","mus":"none","thunder":false,"tall":{"img":"scene-village.jpg","lights":[{"x":0.637,"y":0.17,"r":0.3185,"k":"lamp"}],"fx":[{"k":"mist","a":[0,0.12,1,0.28],"n":0.55},{"k":"mist","a":[0,0.34,0.9556,0.12],"n":0.45},{"k":"shimmer","a":[0.637,0.72,0.363,0.14],"n":0.35}]},"tab":{"img":"scene-village-tab.jpg","lights":[{"x":0.6196,"y":0.17,"r":0.2392,"k":"lamp"}],"fx":[{"k":"mist","a":[0.1412,0.12,0.7894,0.28],"n":0.55},{"k":"mist","a":[0.1412,0.34,0.7176,0.12],"n":0.45},{"k":"shimmer","a":[0.6196,0.72,0.287,0.14],"n":0.35}]},"land":{"img":"scene-village-land.jpg","lights":[{"x":0.5667,"y":0.17,"r":0.1344,"k":"lamp"}],"fx":[{"k":"mist","a":[0.2979,0.12,0.4437,0.28],"n":0.55},{"k":"mist","a":[0.2979,0.34,0.4033,0.12],"n":0.45},{"k":"shimmer","a":[0.5667,0.72,0.1613,0.14],"n":0.35}]},"wide":{"img":"scene-village-wide.jpg","lights":[{"x":0.5497,"y":0.17,"r":0.1,"k":"lamp"}],"fx":[{"k":"mist","a":[0.3496,0.12,0.3302,0.28],"n":0.55},{"k":"mist","a":[0.3496,0.34,0.3001,0.12],"n":0.45},{"k":"shimmer","a":[0.5497,0.72,0.1201,0.14],"n":0.35}]}},"lake":{"name":"بحيرة العصر","cat":"nature","amb":"lake-afternoon","mus":"none","thunder":false,"tall":{"img":"scene-lake.jpg","lights":[{"x":0.3338,"y":0.25,"r":0.4459,"k":"lamp"}],"fx":[{"k":"shimmer","a":[0.0153,0.42,0.9556,0.38],"n":0.45},{"k":"fireflies","a":[0.1108,0.7,0.86,0.26],"n":0.3}]},"tab":{"img":"scene-lake-tab.jpg","lights":[{"x":0.3681,"y":0.25,"r":0.3342,"k":"lamp"}],"fx":[{"k":"shimmer","a":[0.1294,0.42,0.7161,0.38],"n":0.45},{"k":"fireflies","a":[0.201,0.7,0.6445,0.26],"n":0.3}]},"land":{"img":"scene-lake-land.jpg","lights":[{"x":0.4261,"y":0.25,"r":0.188,"k":"lamp"}],"fx":[{"k":"shimmer","a":[0.2919,0.42,0.4028,0.38],"n":0.45},{"k":"fireflies","a":[0.3322,0.7,0.3625,0.26],"n":0.3}]},"wide":{"img":"scene-lake-wide.jpg","lights":[{"x":0.445,"y":0.25,"r":0.1399,"k":"lamp"}],"fx":[{"k":"shimmer","a":[0.3451,0.42,0.2998,0.38],"n":0.45},{"k":"fireflies","a":[0.3751,0.7,0.2698,0.26],"n":0.3}]}},"sakura":{"name":"حديقة الساكورا","cat":"nature","amb":"garden-stream","mus":"none","thunder":false,"tall":{"img":"scene-sakura.jpg","lights":[{"x":0.2101,"y":0.53,"r":0.0701,"k":"candle"},{"x":0.5477,"y":0.44,"r":0.0573,"k":"candle"},{"x":0.9522,"y":0.73,"r":0.0701,"k":"candle"}],"fx":[{"k":"rain","a":[0,0,1,1],"n":0.5},{"k":"petals","a":[0,0,1,0.6],"n":0.45},{"k":"shimmer","a":[0.0444,0.7,0.9556,0.3],"n":0.35}]},"tab":{"img":"scene-sakura-tab.jpg","lights":[{"x":0.2656,"y":0.53,"r":0.0526,"k":"candle"},{"x":0.5191,"y":0.44,"r":0.0431,"k":"candle"},{"x":0.8229,"y":0.73,"r":0.0526,"k":"candle"}],"fx":[{"k":"rain","a":[0.0814,0,0.7774,1],"n":0.5},{"k":"petals","a":[0.0814,0,0.7774,0.6],"n":0.45},{"k":"shimmer","a":[0.1412,0.7,0.7176,0.3],"n":0.35}]},"land":{"img":"scene-sakura-land.jpg","lights":[{"x":0.3678,"y":0.53,"r":0.0296,"k":"candle"},{"x":0.5103,"y":0.44,"r":0.0242,"k":"candle"},{"x":0.681,"y":0.73,"r":0.0296,"k":"candle"}],"fx":[{"k":"rain","a":[0.2642,0,0.4369,1],"n":0.5},{"k":"petals","a":[0.2642,0,0.4369,0.6],"n":0.45},{"k":"shimmer","a":[0.2979,0.7,0.4033,0.3],"n":0.35}]},"wide":{"img":"scene-sakura-wide.jpg","lights":[{"x":0.4016,"y":0.53,"r":0.022,"k":"candle"},{"x":0.5076,"y":0.44,"r":0.018,"k":"candle"},{"x":0.6347,"y":0.73,"r":0.022,"k":"candle"}],"fx":[{"k":"rain","a":[0.3246,0,0.3252,1],"n":0.5},{"k":"petals","a":[0.3246,0,0.3252,0.6],"n":0.45},{"k":"shimmer","a":[0.3496,0.7,0.3001,0.3],"n":0.35}]}},"bridge":{"name":"الجسر الأحمر","cat":"nature","amb":"garden-stream","mus":"none","thunder":false,"tall":{"img":"scene-bridge.jpg","lights":[{"x":0.495,"y":0.13,"r":0.3821,"k":"lamp"}],"fx":[{"k":"shimmer","a":[0,0.6,1,0.38],"n":0.4},{"k":"mist","a":[0.1129,0.2,0.8871,0.12],"n":0.45},{"k":"petals","a":[0,0,1,0.55],"n":0.25}]},"tab":{"img":"scene-bridge-tab.jpg","lights":[{"x":0.5,"y":0.13,"r":0.287,"k":"lamp"}],"fx":[{"k":"shimmer","a":[0,0.6,1,0.38],"n":0.4},{"k":"mist","a":[0.213,0.2,0.7176,0.12],"n":0.45},{"k":"petals","a":[0,0,1,0.55],"n":0.25}]},"land":{"img":"scene-bridge-land.jpg","lights":[{"x":0.5,"y":0.13,"r":0.1614,"k":"lamp"}],"fx":[{"k":"shimmer","a":[0.1638,0.6,0.7395,0.38],"n":0.4},{"k":"mist","a":[0.3386,0.2,0.4034,0.12],"n":0.45},{"k":"petals","a":[0,0,1,0.55],"n":0.25}]},"wide":{"img":"scene-bridge-wide.jpg","lights":[{"x":0.5005,"y":0.13,"r":0.1201,"k":"lamp"}],"fx":[{"k":"shimmer","a":[0.2503,0.6,0.5506,0.38],"n":0.4},{"k":"mist","a":[0.3804,0.2,0.3003,0.12],"n":0.45},{"k":"petals","a":[0,0,1,0.55],"n":0.25}]}},"kitten":{"name":"القطة الصغيرة","cat":"motion","amb":"mountain-morning","mus":"none","thunder":false,"tall":{"img":"scene-kitten.jpg","vid":"scene-kitten.mp4","pos":"50% 50%"},"tab":{"img":"scene-kitten-tab.jpg","vid":"scene-kitten.mp4","pos":"50% 50%"},"land":{"img":"scene-kitten-land.jpg","vid":"scene-kitten.mp4","pos":"50% 50%"},"wide":{"img":"scene-kitten-wide.jpg","vid":"scene-kitten.mp4","pos":"50% 50%"}},"flowers":{"name":"حقل الأزهار","cat":"motion","amb":"mountain-morning","mus":"none","thunder":false,"tall":{"img":"scene-flowers.jpg","vid":"scene-flowers.mp4","pos":"45% 50%"},"tab":{"img":"scene-flowers-tab.jpg","vid":"scene-flowers.mp4","pos":"45% 50%"},"land":{"img":"scene-flowers-land.jpg","vid":"scene-flowers.mp4","pos":"45% 50%"},"wide":{"img":"scene-flowers-wide.jpg","vid":"scene-flowers.mp4","pos":"45% 50%"}},"cyclist":{"name":"رحلة الدراجة","cat":"motion","amb":"mountain-morning","mus":"none","thunder":false,"tall":{"img":"scene-cyclist.jpg","vid":"scene-cyclist.mp4","pos":"58% 50%"},"tab":{"img":"scene-cyclist-tab.jpg","vid":"scene-cyclist.mp4","pos":"58% 50%"},"land":{"img":"scene-cyclist-land.jpg","vid":"scene-cyclist.mp4","pos":"58% 50%"},"wide":{"img":"scene-cyclist-wide.jpg","vid":"scene-cyclist.mp4","pos":"58% 50%"}},"princess":{"name":"الأميرة","cat":"motion","amb":"garden-stream","mus":"none","thunder":false,"tall":{"img":"scene-princess.jpg","vid":"scene-princess.mp4","pos":"53% 50%"},"tab":{"img":"scene-princess-tab.jpg","vid":"scene-princess.mp4","pos":"53% 50%"},"land":{"img":"scene-princess-land.jpg","vid":"scene-princess.mp4","pos":"53% 50%"},"wide":{"img":"scene-princess-wide.jpg","vid":"scene-princess.mp4","pos":"53% 50%"}},"boats":{"name":"القوارب","cat":"motion","amb":"waves","mus":"none","thunder":false,"tall":{"img":"scene-boats.jpg","vid":"scene-boats.mp4","pos":"40% 50%"},"tab":{"img":"scene-boats-tab.jpg","vid":"scene-boats.mp4","pos":"40% 50%"},"land":{"img":"scene-boats-land.jpg","vid":"scene-boats.mp4","pos":"40% 50%"},"wide":{"img":"scene-boats-wide.jpg","vid":"scene-boats.mp4","pos":"40% 50%"}},"meadow":{"name":"حقل السنابل","cat":"motion","amb":"mountain-morning","mus":"none","thunder":false,"tall":{"img":"scene-meadow.jpg","vid":"scene-meadow.mp4","pos":"52% 50%"},"tab":{"img":"scene-meadow-tab.jpg","vid":"scene-meadow.mp4","pos":"52% 50%"},"land":{"img":"scene-meadow-land.jpg","vid":"scene-meadow.mp4","pos":"52% 50%"},"wide":{"img":"scene-meadow-wide.jpg","vid":"scene-meadow.mp4","pos":"52% 50%"}},"tiger":{"name":"نمر الغابة","cat":"motion","amb":"forest-rain","mus":"none","thunder":true,"tall":{"img":"scene-tiger.jpg","vid":"scene-tiger.mp4","pos":"46% 50%"},"tab":{"img":"scene-tiger-tab.jpg","vid":"scene-tiger.mp4","pos":"46% 50%"},"land":{"img":"scene-tiger-land.jpg","vid":"scene-tiger.mp4","pos":"46% 50%"},"wide":{"img":"scene-tiger-wide.jpg","vid":"scene-tiger.mp4","pos":"46% 50%"}}};
 function mediaFiles(){const L=amb()._lib;if(!L)return [];const out=[];
@@ -2488,7 +2482,7 @@ document.addEventListener('submit',e=>{
     for(const k of ['birthday','school','holiday','graduation']){const v=document.getElementById('s-pd-'+k)?.value||'';if(/^\d{4}-\d\d-\d\d$/.test(v))pd[k]=v}
     const occ=[...document.querySelectorAll('input[name="occ"]')].filter(i=>i.checked).map(i=>i.value),wf=+document.getElementById('s-wf').value,wt=+document.getElementById('s-wt').value;
     ST={...S.draft,name:document.getElementById('s-name').value.trim().slice(0,30),city:document.getElementById('s-city').value,method:pick('s-method')||'uq',theme:pick('s-theme')||'auto',clock:pick('s-clock')||'12',
-      palette:pick('s-pal')||ST.palette,mascot:pick('s-mascot')!=='0',adhan:pick('s-adhan')||'aqsa',fajr:pick('s-fajr')||'same',pre:+(pick('s-pre')||0),click:pick('s-click')||'pop',nudge:+(pick('s-nudge')||0),
+      palette:pick('s-pal')||ST.palette,adhan:pick('s-adhan')||'aqsa',fajr:pick('s-fajr')||'same',pre:+(pick('s-pre')||0),click:pick('s-click')||'pop',nudge:+(pick('s-nudge')||0),
       work:wf<wt?[wf,wt]:ST.work,dict:pick('s-dict')||'ar',occOn:pick('s-occon')!=='0',occ:occ.length===OCC.length?null:occ,pd,
       hijriTop:chk('s-hijriTop'),hijriTasks:chk('s-hijriTasks'),countdown:chk('s-countdown'),greet:chk('s-greet')};
     lsSet('ds-settings',ST);PAL=PALETTES[ST.palette]||PALETTES.navy;curDark=null;OB.key='';closeSettings();toast('انحفظت الإعدادات')}

@@ -1,4 +1,4 @@
-const CACHE = 'office-desk-pwa-v4';
+const CACHE = 'office-desk-pwa-v5';
 const CORE = [
   './',
   './index.html',
@@ -8,7 +8,7 @@ const CORE = [
   './icon-maskable-512.png',
   './apple-touch-icon.png',
   './adhan-aqsa.mp3',
-  './fonts/readex-pro.woff2'
+  './readex-pro.woff2'
 ];
 self.addEventListener('install', event => {
   // cache each file on its own, so one missing file never blocks the install
@@ -22,7 +22,8 @@ self.addEventListener('activate', event => {
     .then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== 'office-desk-media').map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
-const isMedia = url => url.pathname.includes('/media/');
+// scenes, thumbs, videos and sounds all sit next to index.html; keep them in their own cache
+const isMedia = url => /\.(jpe?g|mp4|webm|mp3)$/i.test(url.pathname);
 // videos and audio ask for byte ranges; answer them from the saved copy when there is one
 async function fromRange(req) {
   const cached = await caches.match(req.url, { ignoreVary: true });
