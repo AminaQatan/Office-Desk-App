@@ -1,22 +1,29 @@
-const CACHE = 'office-desk-pwa-v1';
+const CACHE = 'office-desk-pwa-v2';
 const CORE = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon-maskable-512.png',
-  './icons/apple-touch-icon.png'
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
+  './apple-touch-icon.png',
+  './adhan-aqsa.mp3'
 ];
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
+  // cache each file on its own, so one missing file never blocks the install
+  event.waitUntil(caches.open(CACHE)
+    .then(cache => Promise.allSettled(CORE.map(u => cache.add(u))))
+    .then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  event.waitUntil(caches.keys()
+    .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    .then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  if (req.headers.has('range')) return;   // media range requests go straight to the network
   if (req.mode === 'navigate') {
     event.respondWith(fetch(req).then(res => {
       const copy = res.clone();
@@ -26,7 +33,7 @@ self.addEventListener('fetch', event => {
     return;
   }
   event.respondWith(caches.match(req).then(cached => cached || fetch(req).then(res => {
-    if (res.ok) {
+    if (res.ok && res.status === 200) {
       const copy = res.clone();
       caches.open(CACHE).then(cache => cache.put(req, copy));
     }
