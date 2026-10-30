@@ -1329,6 +1329,9 @@ function openSettings(){
     <div class="field"><span class="lab">تواريخك الخاصة</span><div class="pdates">${[['birthday','🎂 عيد ميلادك'],['school','🏫 بداية العام الدراسي'],['holiday','🏖️ بداية الإجازة'],['graduation','🎓 حفل التخرج']].map(([k,l])=>`<label>${l}<input type="date" id="s-pd-${k}" value="${esc(ST.pd[k]||'')}"></label>`).join('')}</div></div>
     <div class="field"><span class="lab">طريقة العرض</span><div class="tgl">${[['hijriTop','التاريخ الهجري بارز أعلى كل الصفحات'],['hijriTasks','التاريخ الهجري في جدول المهام'],['countdown','عدّاد المناسبة القادمة'],['greet','زر بطاقة التهنئة']].map(([k,l])=>`<label><input type="checkbox" id="s-${k}"${ST[k]?' checked':''}>${l}</label>`).join('')}</div></div>
     <details class="dd"><summary>المناسبات المفعّلة (${en.size} من ${OCC.length})</summary><div class="occl">${OCC_GROUPS.map(([g,l])=>`<h4>${l}</h4>`+OCC.filter(o=>o.k===g).map(o=>`<label><input type="checkbox" name="occ" value="${o.id}"${en.has(o.id)?' checked':''}>${o.e} ${esc(o.n)}${o.cc?` <small class="note">(${CC_NAME[o.cc]})</small>`:''}</label>`).join('')).join('')}</div></details>
+    <h3 class="sh">مشاهد التركيز وأصواتها</h3>
+    <div class="field"><p class="note">${MEDIA==='./media/'?'المشاهد والأصوات محفوظة داخل تطبيقك (مجلد media).':'المشاهد والأصوات تُحمَّل الآن من الخادم الخارجي، لأن مجلد media غير موجود في تطبيقك بعد.'}</p>
+      <div class="row"><button class="btn line" type="button" data-a="media-cache">حفظ كل المشاهد والأصوات للعمل بدون إنترنت</button></div></div>
     <h3 class="sh">النسخة الاحتياطية</h3>
     <div class="field"><p class="note">المهام والملاحظات والتسجيلات والملفات والإعدادات محفوظة في هذا الجهاز فقط. احفظي نسخة لتنقليها إلى جهاز آخر أو تسترجعيها لاحقاً.</p>
       <div class="row"><button class="btn line" type="button" data-a="bk-save">حفظ نسخة احتياطية</button><label class="btn line">استرجاع نسخة<input type="file" class="vh" id="s-restore" accept="application/json,.json"></label></div></div>
@@ -2386,10 +2389,23 @@ function createAmbience(opts){
 }
 
 /* ---------- «الجو»: scene + sounds behind the focus page ---------- */
+/* the scenes and sounds live in the app's own media/ folder; until that folder is uploaded they still come from the old server */
+const REMOTE_MEDIA='https://desk-screen.home-panel.workers.dev/media/';
+let MEDIA=CFG.media||REMOTE_MEDIA;
+async function pickMedia(){if(CFG.media||location.protocol==='file:')return;
+  try{const c=new AbortController(),t=setTimeout(()=>c.abort(),2500);const r=await fetch('./media/thumb-paris.jpg',{signal:c.signal});clearTimeout(t);
+    if(r.ok&&/^image\//.test(r.headers.get('content-type')||''))MEDIA='./media/'}catch(e){}}
+function mediaFiles(){const L=amb()._lib;if(!L)return [];const out=[];
+  for(const k in L.LIB){const sc=L.LIB[k];out.push('thumb-'+k+'.jpg');for(const v of [sc.tall,sc.wide])if(v){out.push(v.img);if(v.vid)out.push(v.vid)}}
+  for(const a of L.AMB_LIB)out.push(a[0]+'.mp3');out.push('thunder-1.mp3','thunder-2.mp3','thunder-3.mp3');return [...new Set(out)]}
+async function cacheMedia(){if(MEDIA!=='./media/'){toast('المشاهد ما زالت على الخادم الخارجي. ارفعي مجلد media إلى تطبيقك أولاً');return}
+  const fs=mediaFiles();let n=0;toast('أحفظ المشاهد والأصوات في هذا الجهاز…');
+  for(const f of fs){try{const r=await fetch(MEDIA+f);if(r.ok){await r.arrayBuffer();n++}}catch(e){}if(n&&n%10===0)toast('حفظت '+n+' من '+fs.length)}
+  toast(n===fs.length?'كل المشاهد والأصوات تعمل الآن بدون إنترنت':'حفظت '+n+' من '+fs.length+'، والباقي يحتاج إنترنت')}
 let AMB=null;
 function amb(){if(AMB)return AMB;let m=document.getElementById('ambMount');
   if(!m){m=document.createElement('div');m.id='ambMount';m.className='ambm';document.body.insertBefore(m,document.getElementById('app'))}
-  AMB=createAmbience({scenes:occScenes(),scenesTitle:'خلفيات المناسبات والفصول',mount:m,store:'ds-amb',media:CFG.media||'https://desk-screen.home-panel.workers.dev/media/',youtube:true,toast:t=>toast(t),onChange:ambSync,clock:()=>hm(Date.now())});return AMB}
+  AMB=createAmbience({scenes:occScenes(),scenesTitle:'خلفيات المناسبات والفصول',mount:m,store:'ds-amb',media:MEDIA,youtube:true,toast:t=>toast(t),onChange:ambSync,clock:()=>hm(Date.now())});return AMB}
 function ambSync(s){s=s||(AMB&&AMB.state);if(!s)return;
   document.body.classList.toggle('ambbg',s.showing);document.body.classList.toggle('amb',s.showing&&!s.dim);
   const n=document.getElementById('ambNow');if(n)n.textContent=s.nowMus?'♪ '+s.nowMus:'';
@@ -2477,6 +2493,7 @@ document.addEventListener('click',async e=>{
     case 'n-del':{if(b.dataset.armed){const id=S.edit;S.edit=null;document.getElementById('sheetwrap')?.remove();stopSpeak();await noteDelete(id);render()}
       else{b.dataset.armed='1';b.classList.add('armed');b.textContent='اضغطي مرة ثانية للحذف';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.classList.remove('armed');b.textContent='حذف'}},3500)}break}
     case 'bk-save':backupSave();break;
+    case 'media-cache':cacheMedia();break;
     case 'del':{saveTasks((lsGet('ds-tasks',[])||[]).filter(x=>x.id!==b.dataset.id));render();break}
     case 'skip':S.skip++;render();break;
     case 'focus-start':{const f=fGet();if(!f.end){f.end=Date.now()+fLeft(f);fSet(f)}if(S.audioOK)amb().unlock();amb().timer(true);unpeek();const i=PAGES.findIndex(p=>p[0]==='focus');if(i>=0)go(i);break}
@@ -2527,7 +2544,7 @@ document.addEventListener('pointerdown',e=>{if(e.target.closest('#page')&&!e.tar
 document.addEventListener('pointerup',e=>{const p=S.px;S.px=null;if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5){S.swiped=true;setTimeout(()=>S.swiped=false,300);go(S.page+(dx>0?1:-1))}});
 document.addEventListener('wheel',e=>{if(Math.abs(e.deltaX)<Math.abs(e.deltaY))return;if(AMB&&(AMB.state.sheetOpen||AMB.state.show))return;const now=Date.now();if(now-S.wheelT<700)return;S.wheel+=e.deltaX;if(Math.abs(S.wheel)>90){S.wheelT=now;const d=S.wheel>0?-1:1;S.wheel=0;go(S.page+d)}},{passive:true});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();if(S.started)wake()}});
-loadAdhan();render();setInterval(()=>tick(false),1000);
+loadAdhan();pickMedia().then(()=>{render();setInterval(()=>tick(false),1000)});
 })();
 </script>
 
