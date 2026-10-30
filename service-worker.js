@@ -1,4 +1,4 @@
-const CACHE = 'office-desk-pwa-v3';
+const CACHE = 'office-desk-pwa-v4';
 const CORE = [
   './',
   './index.html',
@@ -7,7 +7,8 @@ const CORE = [
   './icon-512.png',
   './icon-maskable-512.png',
   './apple-touch-icon.png',
-  './adhan-aqsa.mp3'
+  './adhan-aqsa.mp3',
+  './fonts/readex-pro.woff2'
 ];
 self.addEventListener('install', event => {
   // cache each file on its own, so one missing file never blocks the install
