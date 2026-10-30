@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>شاشة المكتب</title>
 <meta name="apple-mobile-web-app-title" content="شاشة المكتب">
-<meta name="theme-color" content="#3D405B">
+<meta name="theme-color" content="#FAF8F4">
 
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
@@ -32,8 +32,8 @@
     "focus",
     "adhkar"
   ],
-  "palette": "blossom",
-  "font": "Readex Pro",
+  "palette": "pearl",
+  "font": "Almarai",
   "clock": "12",
   "focus": [
     25,
@@ -44,8 +44,8 @@
 </script>
 <style>
 /* Layout: one portrait page at a time (time, tasks, focus, adhkar) with a tab bar at the bottom. Colors come from the chosen palette and switch light/dark with the time of day. */
-:root{--u:min(1vw,.5625vh);--f:"Readex Pro","IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif;
-  --bg:#FDF6EC;--surface:#FFFDF8;--card:#F4EADB;--fg:#2B2D42;--muted:#6B6D80;--line:#E7DCCB;--accent:#E07A5F;--accentInk:#B8553C;--accentFg:#fff;
+:root{--u:min(1vw,.5625vh);--f:"Almarai","IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif;
+  --bg:#FAF8F4;--surface:#FFFDF8;--card:#F4EADB;--fg:#2B2D42;--muted:#6B6D80;--line:#E7DCCB;--accent:#E07A5F;--accentInk:#B8553C;--accentFg:#fff;
   --gold:#F2CC8F;--goldInk:#8E6A22;--ok:#4F8A6E;--hero:#3D405B;--heroFg:#FDF6EC;--heroMuted:#C9CADB;--heroTrack:rgba(253,246,236,.16);--olive:#81B29A}
 *{box-sizing:border-box}
 html,body,#app{height:100%;margin:0}
@@ -176,7 +176,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 /* ===== «الجو»: scene layer + sheet. Every class starts with amb- so nothing collides with the host.
    Colors follow the host: Bousla desk tokens (--dk-*) first, then the standalone palette tokens, then fixed fallbacks. ===== */
 .amb-root,.amb-sheet{
-  --amb-bg:var(--dk-bg,var(--bg,#FDF6EC));--amb-s:var(--dk-surface,var(--surface,#FFFDF8));--amb-card:var(--dk-card,var(--card,#F4EADB));
+  --amb-bg:var(--dk-bg,var(--bg,#FAF8F4));--amb-s:var(--dk-surface,var(--surface,#FFFDF8));--amb-card:var(--dk-card,var(--card,#F4EADB));
   --amb-fg:var(--dk-fg,var(--fg,#2B2D42));--amb-muted:var(--dk-muted,var(--muted,#6B6D80));--amb-line:var(--dk-line,var(--line,#E7DCCB));
   --amb-accent:var(--dk-accent,var(--accent,#E07A5F));--amb-accent-ink:var(--dk-accent-ink,var(--accentInk,#B8553C));--amb-accent-fg:var(--dk-accent-fg,var(--accentFg,#FFFFFF));
   --amb-gold:var(--dk-gold,var(--gold,#F2CC8F));--amb-f:var(--dk-f,var(--f,"IBM Plex Sans Arabic","Readex Pro","Geeza Pro",system-ui,sans-serif))}
@@ -311,7 +311,7 @@ label.amb-b:focus-within{outline:2px solid var(--amb-accent);outline-offset:2px}
 .amb-showbtn svg{width:20px;height:20px;flex:none}
 
 .amb-show{position:fixed;inset:0;z-index:43;overflow:hidden;background:#05060c;color:#fff;
-  font-family:"Readex Pro",var(--dk-f,var(--f,"IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif));
+  font-family:var(--dk-f,var(--f,"IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif));
   -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;animation:amb-fade .45s ease}
 .amb-show:focus{outline:none}
 .amb-show.amb-idle,.amb-show.amb-idle *{cursor:none}
@@ -620,8 +620,12 @@ const PALETTES={
        dark:{bg:'#0B1A22',surface:'#12252F',card:'#1A303C',fg:'#E6F0F2',muted:'#93A9B2',line:'#25404D',accent:'#3FA7BB',accentInk:'#6CC3D4',accentFg:'#0B1A22',gold:'#F2C14E',goldInk:'#F2C14E',ok:'#73C3A2',olive:'#73C3A2',hero:'#163644',heroFg:'#E6F0F2',heroMuted:'#93A9B2'}},
   ink:{light:{bg:'#F4F3F0',surface:'#FFFFFF',card:'#E8E6E1',fg:'#1B1B1B',muted:'#66635D',line:'#DCD9D2',accent:'#A87B2D',accentInk:'#87621F',accentFg:'#FFFFFF',gold:'#E2B857',goldInk:'#7E6020',ok:'#4E7D5B',olive:'#7FA083',hero:'#1B1B1B',heroFg:'#F4F3F0',heroMuted:'#B9B6AF'},
        dark:{bg:'#121212',surface:'#1C1C1C',card:'#262626',fg:'#F1EFEA',muted:'#A8A49C',line:'#333',accent:'#D3A24C',accentInk:'#E4BB6E',accentFg:'#121212',gold:'#E2B857',goldInk:'#E2B857',ok:'#86B592',olive:'#86B592',hero:'#202020',heroFg:'#F1EFEA',heroMuted:'#A8A49C'}},
+  pearl:{light:{bg:'#FAF8F4',surface:'#FFFFFF',card:'#F2EEE7',fg:'#2E2A33',muted:'#756E7A',line:'#E8E2D8',accent:'#C9668A',accentInk:'#A14B6C',accentFg:'#FFFFFF',gold:'#F2C98A',goldInk:'#8C5E22',ok:'#4C9277',olive:'#93C2AC',hero:'#3F3A4A',heroFg:'#FAF8F4',heroMuted:'#CFC8D6'},
+        dark:{bg:'#1C1A1F',surface:'#26232A',card:'#302C35',fg:'#F4F1EC',muted:'#B3ACB8',line:'#3D3842',accent:'#E58DAA',accentInk:'#F0A9C1',accentFg:'#1C1A1F',gold:'#F2C98A',goldInk:'#F2C98A',ok:'#86C9AE',olive:'#86C9AE',hero:'#2D2933',heroFg:'#F4F1EC',heroMuted:'#B3ACB8'}},
   blossom:{light:{bg:'#FFF6F9',surface:'#FFFFFF',card:'#FCE6EE',fg:'#3A2440',muted:'#83708A',line:'#F3D6E1',accent:'#E2598A',accentInk:'#B83C68',accentFg:'#FFFFFF',gold:'#FFD39B',goldInk:'#94582B',ok:'#3F9A7A',olive:'#8FC9AE',hero:'#6B3A6E',heroFg:'#FFF6F9',heroMuted:'#E6CBE7'},
         dark:{bg:'#1E1622',surface:'#2A1F2F',card:'#36293C',fg:'#FBEFF4',muted:'#C4AFC6',line:'#46364C',accent:'#F38BAE',accentInk:'#F8A9C4',accentFg:'#1E1622',gold:'#FFD39B',goldInk:'#FFD39B',ok:'#7FD1B0',olive:'#7FD1B0',hero:'#3A2840',heroFg:'#FBEFF4',heroMuted:'#C4AFC6'}}};
+/* Arabic fonts from Google Fonts: [family, Arabic label, weights that family really has] */
+const FONTS=[['Almarai','المراعي','300;400;700;800'],['IBM Plex Sans Arabic','بلكس','400;500;700'],['Tajawal','تجوال','400;500;700;800'],['Noto Kufi Arabic','كوفي','400;700;800'],['Readex Pro','ريدكس','400;500;700']];
 const ALL_PAGES=[['time','الوقت'],['tasks','مهامي'],['notes','ملاحظاتي'],['focus','التركيز'],['adhkar','الأذكار']];
 const lsGet=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -630,7 +634,7 @@ function settings(){
   const s={name:typeof o.name==='string'?o.name:(CFG.name||''),city:CITIES[o.city]?o.city:(CITIES[CFG.city]?CFG.city:'muscat'),
     method:METHODS[o.method]?o.method:(METHODS[CFG.method]?CFG.method:'uq'),theme:['auto','light','dark'].includes(o.theme)?o.theme:(['auto','light','dark'].includes(CFG.theme)?CFG.theme:'auto'),
     clock:(o.clock||CFG.clock)==='24'?'24':'12',adj:{fajr:0,dhuhr:0,asr:0,maghrib:0,isha:0},hijriAdj:0,
-    palette:PALETTES[o.palette]?o.palette:(PALETTES[CFG.palette]?CFG.palette:'blossom'),mascot:o.mascot!==false,
+    palette:PALETTES[o.palette]?o.palette:(PALETTES[CFG.palette]?CFG.palette:'pearl'),font:FONTS.some(f=>f[0]===o.font)?o.font:(FONTS.some(f=>f[0]===CFG.font)?CFG.font:'Almarai'),mascot:o.mascot!==false,
     adhan:['aqsa','file','chime'].includes(o.adhan)?o.adhan:'aqsa',fajr:['same','file','chime'].includes(o.fajr)?o.fajr:'same',
     pre:[0,5,10,15].includes(+o.pre)?+o.pre:10,click:['pop','bubble','bell','off'].includes(o.click)?o.click:'pop',
     nudge:[0,30,60,90].includes(+o.nudge)?+o.nudge:60,work:[7,15],dict:o.dict==='en'?'en':'ar',
@@ -647,9 +651,11 @@ const PAGES=ALL_PAGES.filter(([k])=>!Array.isArray(CFG.pages)||CFG.pages.include
 let PAL=PALETTES[ST.palette]||PALETTES.navy;
 const FW=Array.isArray(CFG.focus)?CFG.focus:[25,5];
 const FOCUS_WORK=Math.max(5,Math.min(120,+FW[0]||25))*6e4,FOCUS_BREAK=Math.max(1,Math.min(30,+FW[1]||5))*6e4;
-if(CFG.font&&/^[A-Za-z0-9 ]{2,40}$/.test(CFG.font)){const l=document.createElement('link');l.rel='stylesheet';
-  l.href='https://fonts.googleapis.com/css2?family='+encodeURIComponent(CFG.font).replace(/%20/g,'+')+':wght@400;700;800&display=swap';document.head.appendChild(l);
-  document.documentElement.style.setProperty('--f',`"${CFG.font}","IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif`)}
+const fontDone={};
+function fontCss(list){const fam=list.filter(d=>!fontDone[d[0]]);if(!fam.length)return;fam.forEach(d=>fontDone[d[0]]=1);const l=document.createElement('link');l.rel='stylesheet';
+  l.href='https://fonts.googleapis.com/css2?'+fam.map(d=>'family='+d[0].replace(/ /g,'+')+':wght@'+d[2]).join('&')+'&display=swap';document.head.appendChild(l)}
+function useFont(f){const d=FONTS.find(x=>x[0]===f)||FONTS[0];fontCss([d]);document.documentElement.style.setProperty('--f',`"${d[0]}","IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif`)}
+useFont(ST.font);
 
 /* ---------- helpers ---------- */
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -906,7 +912,7 @@ const OB={cv:null,ctx:null,base:null,parts:[],raf:0,last:0,occ:null,key:'',w:0,h
 function occMount(){if(OB.cv)return;const c=document.createElement('canvas');c.id='occbg';c.setAttribute('aria-hidden','true');document.body.insertBefore(c,document.body.firstChild);OB.cv=c;OB.ctx=c.getContext('2d');
   let rt=0;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(OB.occ)occDraw(true)},200)})}
 function occRefresh(){occMount();const o=occActive(),key=o?o.id+'|'+curDark+'|'+ST.palette:'';if(key===OB.key){if(OB.occ&&!OB.raf)occFrame(performance.now(),true);return}OB.key=key;OB.occ=o;
-  document.body.classList.toggle('occ',!!o);if(o){const r=document.documentElement.style;r.setProperty('--occA',o.c[0]);r.setProperty('--occB',o.c[1])}occDraw(true)}
+  document.body.classList.toggle('occ',!!o&&(o.pr>=25||!!S.occPrev));/* seasons draw the background but keep the theme's own colours */if(o){const r=document.documentElement.style;r.setProperty('--occA',o.c[0]);r.setProperty('--occB',o.c[1])}occDraw(true)}
 function occDraw(rebuild){const c=OB.cv,o=OB.occ;cancelAnimationFrame(OB.raf);OB.raf=0;if(!c)return;if(!o){c.style.display='none';return}c.style.display='block';
   const dpr=Math.min(2,window.devicePixelRatio||1),w=innerWidth,h=innerHeight;
   if(rebuild||w!==OB.w||h!==OB.h){OB.w=w;OB.h=h;OB.dpr=dpr;c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);c.style.width=w+'px';c.style.height=h+'px';
@@ -926,20 +932,20 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&OB.occ&&!
 /* greeting card: a picture to share on the occasion's day */
 function wrapLines(x,text,maxW){const words=String(text).split(/\s+/),lines=[];let cur='';for(const w of words){const t=cur?cur+' '+w:w;if(x.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t}if(cur)lines.push(cur);return lines}
 async function greetCard(id){const o=OCC.find(z=>z.id===id)||occActive();if(!o)return;toast('أجهّز بطاقة التهنئة…');
-  try{await Promise.all(['800 64px "Readex Pro"','400 40px "Readex Pro"'].map(f=>document.fonts&&document.fonts.load?document.fonts.load(f):0))}catch(e){}
+  const FF='"'+ST.font+'","Geeza Pro",sans-serif';try{await Promise.all(['800 64px "'+ST.font+'"','400 40px "'+ST.font+'"'].map(f=>document.fonts&&document.fonts.load?document.fonts.load(f):0))}catch(e){}
   const W=1080,Hh=1350,c=document.createElement('canvas');c.width=W;c.height=Hh;const x=c.getContext('2d');
   x.fillStyle='#FFFDF9';x.fillRect(0,0,W,Hh);x.drawImage(paintBase(o,W,Hh,false,true),0,0);
   const R=seeded(o.id.length*977+W);for(const p of makeParts(o,W,Hh,R)){p.sz*=1.6;if(p.y>Hh*.2&&p.y<Hh*.82&&p.x>W*.08&&p.x<W*.92)continue;drawPart(x,p,false)}
   x.textAlign='center';x.direction='rtl';x.textBaseline='alphabetic';const pw=W-220,px=110;
-  x.font='800 62px "Readex Pro","Geeza Pro",sans-serif';const tl=wrapLines(x,o.n,pw-120);
-  x.font='500 44px "Readex Pro","Geeza Pro",sans-serif';const gl=wrapLines(x,greetText(o),pw-140);
+  x.font='800 62px '+FF;const tl=wrapLines(x,o.n,pw-120);
+  x.font='500 44px '+FF;const gl=wrapLines(x,greetText(o),pw-140);
   const ph=230+tl.length*78+24+gl.length*62+190+(ST.name?70:0),py=Math.round((Hh-ph)/2);
   x.save();x.shadowColor='rgba(0,0,0,.12)';x.shadowBlur=40;x.fillStyle='rgba(255,255,255,.93)';x.beginPath();x.roundRect?x.roundRect(px,py,pw,ph,56):x.rect(px,py,pw,ph);x.fill();x.restore();
   x.font='150px '+EMOJI_FONT;x.fillText(o.e,W/2,py+190);
-  let y=py+290;x.fillStyle=o.c[0];x.font='800 62px "Readex Pro","Geeza Pro",sans-serif';for(const l of tl){x.fillText(l,W/2,y);y+=78}
-  y+=24;x.fillStyle='#3A3248';x.font='500 44px "Readex Pro","Geeza Pro",sans-serif';x.direction=/[\u0600-\u06FF]/.test(greetText(o))?'rtl':'ltr';for(const l of gl){x.fillText(l,W/2,y);y+=62}x.direction='rtl';
-  y+=60;x.fillStyle='#6B6478';x.font='400 32px "Readex Pro","Geeza Pro",sans-serif';x.fillText(gDate()+' · '+hDate(),W/2,y);
-  if(ST.name){y+=70;x.fillStyle=o.c[0];x.font='700 36px "Readex Pro","Geeza Pro",sans-serif';x.fillText('مع تحيات '+ST.name,W/2,y)}
+  let y=py+290;x.fillStyle=o.c[0];x.font='800 62px '+FF;for(const l of tl){x.fillText(l,W/2,y);y+=78}
+  y+=24;x.fillStyle='#3A3248';x.font='500 44px '+FF;x.direction=/[\u0600-\u06FF]/.test(greetText(o))?'rtl':'ltr';for(const l of gl){x.fillText(l,W/2,y);y+=62}x.direction='rtl';
+  y+=60;x.fillStyle='#6B6478';x.font='400 32px '+FF;x.fillText(gDate()+' · '+hDate(),W/2,y);
+  if(ST.name){y+=70;x.fillStyle=o.c[0];x.font='700 36px '+FF;x.fillText('مع تحيات '+ST.name,W/2,y)}
   const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob){toast('ما قدرت أجهّز البطاقة');return}
   await shareFile(blob,'tahniah-'+o.id+'.png',o.n,greetText(o))}
 
@@ -1269,7 +1275,7 @@ async function wake(){try{if(navigator.wakeLock&&!document.hidden)await navigato
 /* ---------- settings sheet ---------- */
 const chipsH=(id,opts,cur)=>`<div class="chips" id="${id}">${opts.map(([k,l])=>`<button type="button" data-a="pick" data-v="${k}" aria-pressed="${String(k)===String(cur)}">${l}</button>`).join('')}</div>`;
 function openSettings(){
-  S.draft=JSON.parse(JSON.stringify(ST));const T=dayPrayers(0),en=new Set(Array.isArray(ST.occ)?ST.occ:OCC.map(o=>o.id));
+  S.draft=JSON.parse(JSON.stringify(ST));fontCss(FONTS);const T=dayPrayers(0),en=new Set(Array.isArray(ST.occ)?ST.occ:OCC.map(o=>o.id));
   const hrs=a=>Array.from({length:20},(_,i)=>i+4).map(h=>`<option value="${h}"${h===a?' selected':''}>${h<12?h+' ص':h===12?'12 م':(h-12)+' م'}</option>`).join('');
   sheetOpen('settings',`<h2>إعدادات الشاشة</h2>
   <form data-form="settings">
@@ -1280,7 +1286,8 @@ function openSettings(){
     <div class="field"><span class="lab">تعديل الدقائق</span><div class="adj">${PR_KEYS.map(k=>`<div><span>${PR_NAMES[k]} <span class="note num">${hm(T[k]).t}</span></span><span class="ctl"><button type="button" data-a="adj" data-k="${k}" data-d="-1" aria-label="أنقص دقيقة">−</button><span class="num" id="s-${k}">${ST.adj[k]>0?'+':''}${ST.adj[k]} د</span><button type="button" data-a="adj" data-k="${k}" data-d="1" aria-label="زد دقيقة">+</button></span></div>`).join('')}</div></div>
     <div class="field"><span class="lab">التاريخ الهجري</span><div class="adj"><div><span id="s-hv">${esc(hDate())}</span><span class="ctl"><button type="button" data-a="hadj" data-d="-1" aria-label="يوم قبل">−</button><span class="num" id="s-h">${ST.hijriAdj>0?'+':''}${ST.hijriAdj} يوم</span><button type="button" data-a="hadj" data-d="1" aria-label="يوم بعد">+</button></span></div></div></div>
     <div class="field"><span class="lab">الثيم</span>${chipsH('s-theme',[['auto','تلقائي (داكن بعد المغرب)'],['light','فاتح'],['dark','داكن']],ST.theme)}</div>
-    <div class="field"><span class="lab">الألوان</span>${chipsH('s-pal',[['blossom','كيوت وردي 🌸'],['navy','كحلي'],['sand','رملي'],['sea','بحري'],['ink','حبري']],ST.palette)}</div>
+    <div class="field"><span class="lab">الألوان</span>${chipsH('s-pal',[['pearl','لؤلؤي 🤍'],['blossom','كيوت وردي 🌸'],['navy','كحلي'],['sand','رملي'],['sea','بحري'],['ink','حبري']],ST.palette)}</div>
+    <div class="field"><span class="lab">الخط</span>${chipsH('s-font',FONTS.map(([f,l])=>[f,`<span style="font-family:'${f}',sans-serif">${l} · أبجد 123</span>`]),ST.font)}</div>
     <div class="field"><span class="lab">حاشي، الصديق الصغير 🐪</span>${chipsH('s-mascot',[['1','يظهر'],['0','مخفي']],ST.mascot?'1':'0')}</div>
     <div class="field"><span class="lab">الساعة</span>${chipsH('s-clock',[['12','12 ساعة'],['24','24 ساعة']],ST.clock)}</div>
     <h3 class="sh">الأذان</h3>
@@ -2411,11 +2418,11 @@ document.addEventListener('click',async e=>{
     case 'settings':openSettings();break;
     case 'amb':amb().openSheet();break;
     case 'show':openShow();break;
-    case 'close':closeSettings();break;
+    case 'close':if(document.getElementById('sheetwrap')?.dataset.kind==='settings')useFont(ST.font);closeSettings();break;
     case 'stop':stopSound();break;
     case 'banner-x':stopSound();S.banner=null;amb().duck(false);render();break;
     case 'test':{S.audioOK=true;S.started=true;const pk=id=>document.querySelector(`#${id} [aria-pressed="true"]`)?.dataset.v;playAdhan(b.dataset.k||'dhuhr',{adhan:pk('s-adhan')||ST.adhan,fajr:pk('s-fajr')||ST.fajr});break}
-    case 'pick':b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(b.parentNode.id==='s-click'&&b.dataset.v!=='off')setTimeout(()=>clickSnd(b.dataset.v),120);break;
+    case 'pick':b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(b.parentNode.id==='s-click'&&b.dataset.v!=='off')setTimeout(()=>clickSnd(b.dataset.v),120);if(b.parentNode.id==='s-font')useFont(b.dataset.v);break;
     case 'adj':{const k=b.dataset.k,v=Math.max(-30,Math.min(30,(S.draft.adj[k]||0)+(+b.dataset.d)));S.draft.adj[k]=v;document.getElementById('s-'+k).textContent=(v>0?'+':'')+v+' د';break}
     case 'hadj':{const v=Math.max(-2,Math.min(2,S.draft.hijriAdj+(+b.dataset.d)));S.draft.hijriAdj=v;document.getElementById('s-h').textContent=(v>0?'+':'')+v+' يوم';document.getElementById('s-hv').textContent=hDate(v);break}
     case 'done':{const all=lsGet('ds-tasks',[])||[],t=all.find(x=>x.id===b.dataset.id);if(t){t.done=true;t.doneAt=localDay();saveTasks(all);S.skip=0;const sk=streakBump(),left=tasks().filter(x=>!x.done).length;
@@ -2473,10 +2480,10 @@ document.addEventListener('submit',e=>{
     for(const k of ['birthday','school','holiday','graduation']){const v=document.getElementById('s-pd-'+k)?.value||'';if(/^\d{4}-\d\d-\d\d$/.test(v))pd[k]=v}
     const occ=[...document.querySelectorAll('input[name="occ"]')].filter(i=>i.checked).map(i=>i.value),wf=+document.getElementById('s-wf').value,wt=+document.getElementById('s-wt').value;
     ST={...S.draft,name:document.getElementById('s-name').value.trim().slice(0,30),city:document.getElementById('s-city').value,method:pick('s-method')||'uq',theme:pick('s-theme')||'auto',clock:pick('s-clock')||'12',
-      palette:pick('s-pal')||ST.palette,mascot:pick('s-mascot')!=='0',adhan:pick('s-adhan')||'aqsa',fajr:pick('s-fajr')||'same',pre:+(pick('s-pre')||0),click:pick('s-click')||'pop',nudge:+(pick('s-nudge')||0),
+      palette:pick('s-pal')||ST.palette,font:pick('s-font')||ST.font,mascot:pick('s-mascot')!=='0',adhan:pick('s-adhan')||'aqsa',fajr:pick('s-fajr')||'same',pre:+(pick('s-pre')||0),click:pick('s-click')||'pop',nudge:+(pick('s-nudge')||0),
       work:wf<wt?[wf,wt]:ST.work,dict:pick('s-dict')||'ar',occOn:pick('s-occon')!=='0',occ:occ.length===OCC.length?null:occ,pd,
       hijriTop:chk('s-hijriTop'),hijriTasks:chk('s-hijriTasks'),countdown:chk('s-countdown'),greet:chk('s-greet')};
-    lsSet('ds-settings',ST);PAL=PALETTES[ST.palette]||PALETTES.navy;curDark=null;OB.key='';closeSettings();toast('انحفظت الإعدادات')}
+    lsSet('ds-settings',ST);useFont(ST.font);PAL=PALETTES[ST.palette]||PALETTES.navy;curDark=null;OB.key='';closeSettings();toast('انحفظت الإعدادات')}
 });
 document.addEventListener('change',async e=>{const id=e.target.id;
   if(id==='s-file'||id==='s-ffile'){const file=e.target.files&&e.target.files[0];if(!file)return;
