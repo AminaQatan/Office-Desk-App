@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>شاشة المكتب</title>
 <meta name="apple-mobile-web-app-title" content="شاشة المكتب">
-<meta name="theme-color" content="#FAF8F4">
+<meta name="theme-color" content="#3D405B">
 
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
@@ -32,8 +32,8 @@
     "focus",
     "adhkar"
   ],
-  "palette": "pearl",
-  "font": "Almarai",
+  "palette": "navy",
+  "font": "Readex Pro",
   "clock": "12",
   "focus": [
     25,
@@ -44,8 +44,8 @@
 </script>
 <style>
 /* Layout: one portrait page at a time (time, tasks, focus, adhkar) with a tab bar at the bottom. Colors come from the chosen palette and switch light/dark with the time of day. */
-:root{--u:min(1vw,.5625vh);--f:"Almarai","IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif;
-  --bg:#FAF8F4;--surface:#FFFDF8;--card:#F4EADB;--fg:#2B2D42;--muted:#6B6D80;--line:#E7DCCB;--accent:#E07A5F;--accentInk:#B8553C;--accentFg:#fff;
+:root{--u:min(1vw,.5625vh);--f:"Readex Pro","IBM Plex Sans Arabic","Geeza Pro",system-ui,sans-serif;
+  --bg:#FDF6EC;--surface:#FFFDF8;--card:#F4EADB;--fg:#2B2D42;--muted:#6B6D80;--line:#E7DCCB;--accent:#E07A5F;--accentInk:#B8553C;--accentFg:#fff;
   --gold:#F2CC8F;--goldInk:#8E6A22;--ok:#4F8A6E;--hero:#3D405B;--heroFg:#FDF6EC;--heroMuted:#C9CADB;--heroTrack:rgba(253,246,236,.16);--olive:#81B29A}
 *{box-sizing:border-box}
 html,body,#app{height:100%;margin:0}
@@ -176,7 +176,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 /* ===== «الجو»: scene layer + sheet. Every class starts with amb- so nothing collides with the host.
    Colors follow the host: Bousla desk tokens (--dk-*) first, then the standalone palette tokens, then fixed fallbacks. ===== */
 .amb-root,.amb-sheet{
-  --amb-bg:var(--dk-bg,var(--bg,#FAF8F4));--amb-s:var(--dk-surface,var(--surface,#FFFDF8));--amb-card:var(--dk-card,var(--card,#F4EADB));
+  --amb-bg:var(--dk-bg,var(--bg,#FDF6EC));--amb-s:var(--dk-surface,var(--surface,#FFFDF8));--amb-card:var(--dk-card,var(--card,#F4EADB));
   --amb-fg:var(--dk-fg,var(--fg,#2B2D42));--amb-muted:var(--dk-muted,var(--muted,#6B6D80));--amb-line:var(--dk-line,var(--line,#E7DCCB));
   --amb-accent:var(--dk-accent,var(--accent,#E07A5F));--amb-accent-ink:var(--dk-accent-ink,var(--accentInk,#B8553C));--amb-accent-fg:var(--dk-accent-fg,var(--accentFg,#FFFFFF));
   --amb-gold:var(--dk-gold,var(--gold,#F2CC8F));--amb-f:var(--dk-f,var(--f,"IBM Plex Sans Arabic","Readex Pro","Geeza Pro",system-ui,sans-serif))}
@@ -593,6 +593,11 @@ details.dd summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;a
 .nempty .mascot{width:120px}
 @media (prefers-reduced-motion:reduce){.micb.live,[data-a="dict"].live,.recdot{animation:none}.ncard{transform:none}}
 
+.amb-emo{font-size:26px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+
+body.amb .hjline{color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.55)}
+body.amb .hjline span{color:rgba(255,255,255,.82)}
+
 @media (min-aspect-ratio:5/4){.page[data-p="tasks"][data-v="week"]{display:flex}.wk{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}}
 </style>
 </head>
@@ -625,7 +630,7 @@ const PALETTES={
   blossom:{light:{bg:'#FFF6F9',surface:'#FFFFFF',card:'#FCE6EE',fg:'#3A2440',muted:'#83708A',line:'#F3D6E1',accent:'#E2598A',accentInk:'#B83C68',accentFg:'#FFFFFF',gold:'#FFD39B',goldInk:'#94582B',ok:'#3F9A7A',olive:'#8FC9AE',hero:'#6B3A6E',heroFg:'#FFF6F9',heroMuted:'#E6CBE7'},
         dark:{bg:'#1E1622',surface:'#2A1F2F',card:'#36293C',fg:'#FBEFF4',muted:'#C4AFC6',line:'#46364C',accent:'#F38BAE',accentInk:'#F8A9C4',accentFg:'#1E1622',gold:'#FFD39B',goldInk:'#FFD39B',ok:'#7FD1B0',olive:'#7FD1B0',hero:'#3A2840',heroFg:'#FBEFF4',heroMuted:'#C4AFC6'}}};
 /* Arabic fonts from Google Fonts: [family, Arabic label, weights that family really has] */
-const FONTS=[['Almarai','المراعي','300;400;700;800'],['IBM Plex Sans Arabic','بلكس','400;500;700'],['Tajawal','تجوال','400;500;700;800'],['Noto Kufi Arabic','كوفي','400;700;800'],['Readex Pro','ريدكس','400;500;700']];
+const FONTS=[['Readex Pro','ريدكس (الأصلي)','400;700;800'],['Almarai','المراعي','300;400;700;800'],['IBM Plex Sans Arabic','بلكس','400;500;700'],['Tajawal','تجوال','400;500;700;800'],['Noto Kufi Arabic','كوفي','400;700;800']];
 const ALL_PAGES=[['time','الوقت'],['tasks','مهامي'],['notes','ملاحظاتي'],['focus','التركيز'],['adhkar','الأذكار']];
 const lsGet=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -634,7 +639,7 @@ function settings(){
   const s={name:typeof o.name==='string'?o.name:(CFG.name||''),city:CITIES[o.city]?o.city:(CITIES[CFG.city]?CFG.city:'muscat'),
     method:METHODS[o.method]?o.method:(METHODS[CFG.method]?CFG.method:'uq'),theme:['auto','light','dark'].includes(o.theme)?o.theme:(['auto','light','dark'].includes(CFG.theme)?CFG.theme:'auto'),
     clock:(o.clock||CFG.clock)==='24'?'24':'12',adj:{fajr:0,dhuhr:0,asr:0,maghrib:0,isha:0},hijriAdj:0,
-    palette:PALETTES[o.palette]?o.palette:(PALETTES[CFG.palette]?CFG.palette:'pearl'),font:FONTS.some(f=>f[0]===o.font)?o.font:(FONTS.some(f=>f[0]===CFG.font)?CFG.font:'Almarai'),mascot:o.mascot!==false,
+    palette:PALETTES[o.palette]?o.palette:(PALETTES[CFG.palette]?CFG.palette:'navy'),font:FONTS.some(f=>f[0]===o.font)?o.font:(FONTS.some(f=>f[0]===CFG.font)?CFG.font:'Readex Pro'),mascot:o.mascot===true,
     adhan:['aqsa','file','chime'].includes(o.adhan)?o.adhan:'aqsa',fajr:['same','file','chime'].includes(o.fajr)?o.fajr:'same',
     pre:[0,5,10,15].includes(+o.pre)?+o.pre:10,click:['pop','bubble','bell','off'].includes(o.click)?o.click:'pop',
     nudge:[0,30,60,90].includes(+o.nudge)?+o.nudge:60,work:[7,15],dict:o.dict==='en'?'en':'ar',
@@ -878,7 +883,7 @@ function lantern(x,cx,top,len,s,col,glow){x.save();x.strokeStyle=rgba(col,.55);x
   x.strokeStyle=col;x.lineWidth=2*s;x.stroke();x.beginPath();x.moveTo(cx,y+6*s);x.lineTo(cx,y+36*s);x.moveTo(cx-12*s,y+22*s);x.lineTo(cx+12*s,y+22*s);x.lineWidth=1.2*s;x.stroke();
   x.fillStyle=col;x.fillRect(cx-6*s,y+36*s,12*s,4*s);x.beginPath();x.arc(cx,y+44*s,2.4*s,0,Math.PI*2);x.fill();x.restore()}
 function octagram(x,cx,cy,r){for(const rot of [0,Math.PI/4]){x.beginPath();for(let i=0;i<4;i++){const a=rot+i*Math.PI/2+Math.PI/4;x.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r)}x.closePath();x.stroke()}}
-function paintBase(o,w,h,dark,card){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),A=o.c[0],B=o.c[1],m=o.m,R=seeded(w*7+h+o.id.length*131),s=Math.max(.8,Math.min(1.6,w/520));
+function paintBase(o,w,h,dark,card,scene){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),A=o.c[0],B=o.c[1],m=o.m,R=seeded(w*7+h+o.id.length*131),s=Math.max(.8,Math.min(1.6,w/520));
   const k=card?1.35:(dark?1.25:1);
   let gr=x.createLinearGradient(0,0,0,h);gr.addColorStop(0,rgba(A,.17*k));gr.addColorStop(.42,rgba(A,0));gr.addColorStop(.7,rgba(B,0));gr.addColorStop(1,rgba(B,.2*k));x.fillStyle=gr;x.fillRect(0,0,w,h);
   const blobs=n=>{for(let i=0;i<n;i++){const bx=R()<.5?R()*w*.25:w-R()*w*.25,by=R()*h,br=(60+R()*120)*s,col=i%2?A:B,g=x.createRadialGradient(bx,by,0,bx,by,br);g.addColorStop(0,rgba(col,.12*k));g.addColorStop(1,rgba(col,0));x.fillStyle=g;x.fillRect(bx-br,by-br,br*2,br*2)}};
@@ -890,7 +895,7 @@ function paintBase(o,w,h,dark,card){const c=document.createElement('canvas');c.w
     x.fillStyle=rgba(gold,dark||card?.9:.75);for(let i=0;i<(m==='night'?26:16);i++)star4(x,R()*w,R()*h*.45,(2+R()*4)*s);
     crescent(x,m==='night'?w*.18:w*.82,(m==='night'?70:150)*s,26*s*(card?1.5:1),gold);blobs(3)}
   if(m==='geo'||m==='arafah'){x.strokeStyle=rgba(A,dark?.16:.12*k);x.lineWidth=1.2;const T=64*s;for(let yy=-T;yy<h+T;yy+=T)for(let xx=-T;xx<w+T;xx+=T)octagram(x,xx,yy,T*.42);
-    const fade=x.createLinearGradient(0,h*.25,0,h*.7);const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()||'#ffffff';fade.addColorStop(0,'rgba(0,0,0,0)');fade.addColorStop(.5,bg.startsWith('#')?rgba(bg,card?0:.75):'rgba(255,255,255,.6)');fade.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=fade;x.fillRect(0,0,w,h)}
+    if(!scene){const fade=x.createLinearGradient(0,h*.25,0,h*.7);const bg=getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()||'#ffffff';fade.addColorStop(0,'rgba(0,0,0,0)');fade.addColorStop(.5,bg.startsWith('#')?rgba(bg,card?0:.75):'rgba(255,255,255,.6)');fade.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=fade;x.fillRect(0,0,w,h)}}
   if(m==='arafah'||m==='mist'){const layers=[[.82,A,.2],[.88,B,.3],[.93,A,.32]];layers.forEach(([base,col,al],j)=>{x.fillStyle=rgba(col,al*k);x.beginPath();x.moveTo(0,h);for(let px=0;px<=w;px+=8){const py=h*base-Math.sin(px/w*Math.PI*(2+j)+j)*22*s-(m==='arafah'&&j===0?Math.max(0,90*s-Math.abs(px-w*.6)*.5):0);x.lineTo(px,py)}x.lineTo(w,h);x.closePath();x.fill()})}
   if(m==='mist'){for(let i=0;i<5;i++){const y=h*(.15+i*.14),g=x.createLinearGradient(0,y-30*s,0,y+30*s);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.5,`rgba(255,255,255,${dark?.06:.32})`);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,y-30*s,w,60*s)}}
   if(m==='sun'){const cx=w*.12,cy=h*.06,g=x.createRadialGradient(cx,cy,0,cx,cy,260*s);g.addColorStop(0,rgba(A,.45*k));g.addColorStop(1,rgba(A,0));x.fillStyle=g;x.fillRect(0,0,w,h);x.strokeStyle=rgba(A,.16*k);x.lineWidth=10*s;for(let i=0;i<9;i++){const a=i/9*Math.PI*.6+.05;x.beginPath();x.moveTo(cx+Math.cos(a)*70*s,cy+Math.sin(a)*70*s);x.lineTo(cx+Math.cos(a)*(260+R()*120)*s,cy+Math.sin(a)*(260+R()*120)*s);x.stroke()}}
@@ -1162,6 +1167,21 @@ async function backupRestore(file){try{const o=JSON.parse(await file.text());if(
   for(const k in (o.files||{})){const f=o.files[k];const b=await (await fetch(f.data)).blob();await idbPut(k,{blob:b,name:f.name})}
   toast('رجعت بياناتك، يعاد تشغيل التطبيق…');setTimeout(()=>location.reload(),1300)}catch(e){toast('الملف هذا ما هو نسخة احتياطية من شاشة المكتب')}}
 
+/* occasion backgrounds as «الجو» scenes for the focus page: a deeper version so the white text over the scene stays readable */
+function mixHex(a,b,t){const p=v=>[1,3,5].map(i=>parseInt(v.slice(i,i+2),16)),A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+function occScenes(){const grp=Object.fromEntries(OCC_GROUPS),out={};
+  for(const o of OCC)out['occ-'+o.id]={name:o.n,grp:grp[o.k],ic:o.e,g:`linear-gradient(135deg,${mixHex(o.c[0],'#0d0b16',.3)},${mixHex(o.c[1],'#0d0b16',.5)})`,
+    init(W,H){const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,W,H);
+      g.addColorStop(0,mixHex(o.c[0],'#0d0b16',.55));g.addColorStop(1,mixHex(o.c[1],'#0d0b16',.72));x.fillStyle=g;x.fillRect(0,0,W,H);
+      x.drawImage(paintBase(o,W,H,true,false,true),0,0);
+      const v=x.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.8);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.42)');x.fillStyle=v;x.fillRect(0,0,W,H);
+      const parts=makeParts(o,W,H);for(const p of parts){if(p.k!=='conf')p.sz*=1.3;p.al=Math.min(.9,p.al+.25)}return{base:c,parts}},
+    frame(ctx,W,H,dt,s){ctx.drawImage(s.base,0,0);const k=RM?0:Math.min(3,dt*30);
+      for(const p of s.parts){if(k){p.ph+=.02*k;p.x+=(p.vx+Math.sin(p.ph)*.15)*k*1.4;p.y+=p.vy*k*1.4;if(p.k==='conf')p.rot+=p.vr*k;
+          if(p.y>H+40){p.y=-40;p.x=Math.random()*W}if(p.y<-50){p.y=H+40;p.x=Math.random()*W}if(p.x<-50)p.x=W+40;if(p.x>W+50)p.x=-40}
+        drawPart(ctx,p,true)}}};
+  return out}
+
 /* ---------- pages ---------- */
 function pTime(st){
   const c=hm(st.now),T=st.T,nT=st.next.tomorrow?dayPrayers(1):T,nx=hm(st.next.t);
@@ -1286,7 +1306,7 @@ function openSettings(){
     <div class="field"><span class="lab">تعديل الدقائق</span><div class="adj">${PR_KEYS.map(k=>`<div><span>${PR_NAMES[k]} <span class="note num">${hm(T[k]).t}</span></span><span class="ctl"><button type="button" data-a="adj" data-k="${k}" data-d="-1" aria-label="أنقص دقيقة">−</button><span class="num" id="s-${k}">${ST.adj[k]>0?'+':''}${ST.adj[k]} د</span><button type="button" data-a="adj" data-k="${k}" data-d="1" aria-label="زد دقيقة">+</button></span></div>`).join('')}</div></div>
     <div class="field"><span class="lab">التاريخ الهجري</span><div class="adj"><div><span id="s-hv">${esc(hDate())}</span><span class="ctl"><button type="button" data-a="hadj" data-d="-1" aria-label="يوم قبل">−</button><span class="num" id="s-h">${ST.hijriAdj>0?'+':''}${ST.hijriAdj} يوم</span><button type="button" data-a="hadj" data-d="1" aria-label="يوم بعد">+</button></span></div></div></div>
     <div class="field"><span class="lab">الثيم</span>${chipsH('s-theme',[['auto','تلقائي (داكن بعد المغرب)'],['light','فاتح'],['dark','داكن']],ST.theme)}</div>
-    <div class="field"><span class="lab">الألوان</span>${chipsH('s-pal',[['pearl','لؤلؤي 🤍'],['blossom','كيوت وردي 🌸'],['navy','كحلي'],['sand','رملي'],['sea','بحري'],['ink','حبري']],ST.palette)}</div>
+    <div class="field"><span class="lab">الألوان</span>${chipsH('s-pal',[['navy','كحلي (الأصلي)'],['pearl','لؤلؤي 🤍'],['blossom','كيوت وردي 🌸'],['sand','رملي'],['sea','بحري'],['ink','حبري']],ST.palette)}</div>
     <div class="field"><span class="lab">الخط</span>${chipsH('s-font',FONTS.map(([f,l])=>[f,`<span style="font-family:'${f}',sans-serif">${l} · أبجد 123</span>`]),ST.font)}</div>
     <div class="field"><span class="lab">حاشي، الصديق الصغير 🐪</span>${chipsH('s-mascot',[['1','يظهر'],['0','مخفي']],ST.mascot?'1':'0')}</div>
     <div class="field"><span class="lab">الساعة</span>${chipsH('s-clock',[['12','12 ساعة'],['24','24 ساعة']],ST.clock)}</div>
@@ -1515,7 +1535,8 @@ function createAmbience(opts){
   const musName=k=>{const m=MUS_LIB.find(x=>x[0]===k);return m?m[1]:k==='file'?T.mine:''};
 
   /* ---------------- settings (localStorage) ---------------- */
-  const CANVAS_KEYS=['glass','room','storm','sea'];
+  const XS=opts.scenes&&typeof opts.scenes==='object'?opts.scenes:{};   // extra drawn scenes from the host (the occasion backgrounds)
+  const CANVAS_KEYS=['glass','room','storm','sea'].concat(Object.keys(XS));
   const sceneOK=k=>k==='none'||k==='file'||(YT&&k==='youtube')||CANVAS_KEYS.includes(k)||(typeof k==='string'&&Object.prototype.hasOwnProperty.call(LIB,k));
   const ROT=[0,10,20,30];   // «وضع المشاهد» auto change, minutes
   const DEF={scene:'paris',amb:'rain-window',mus:'none',thunder:false,motion:true,ovRain:false,ovGlow:false,vAmb:.5,vMus:.85,mix:2,withTimer:true,allPages:false,yt:'',ytSound:false,copyUrl:String(opts.standaloneUrl||''),rotate:0,clock:true};
@@ -1729,6 +1750,7 @@ function createAmbience(opts){
      const v=ctx.createRadialGradient(w/2,h*.55,h*.3,w/2,h*.55,h*.8);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.4)');ctx.fillStyle=v;ctx.fillRect(0,0,w,h)}}
   };
   /* the person's own still picture, with optional rain-on-glass and warm glow on top */
+  for(const k of Object.keys(XS)){const e=XS[k];SCENES[k]={name:e.name,g:e.g,grp:e.grp||'',ic:e.ic||'',init(){this.o=e.init(W,H)},frame(dt){e.frame(ctx,W,H,dt,this.o)}}}
   const PHOTO={
     init(){this.bg=mk(W,H);const x=this.bg.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,W,H);
       if(imgEl&&imgEl.naturalWidth)coverDraw(x,imgEl,imgEl.naturalWidth,imgEl.naturalHeight,W,H);
@@ -2168,11 +2190,15 @@ function createAmbience(opts){
     if(SH.paired&&LIB[sc])h+=`<p class="amb-note">${T.paired}</p>`;
     if(LIB[sc])h+=sw('motion',st.motion,T.motion,T.motionSub);
     const thumb=thumbURL?`url(&quot;${esc(thumbURL)}&quot;) center/cover`:(F.bg?'linear-gradient(135deg,#2b2140,#3b2a22)':'');
-    const cards=CANVAS_KEYS.map(s=>[s,SCENES[s].name,SCENES[s].g,'']).concat([['file',T.file,thumb,thumbURL?'':(F.bg?ICON.play:ICON.plus)]],YT?[['youtube',T.yt,'linear-gradient(135deg,#4a0f19,#1a1530)',ICON.play]]:[],[['none',T.none,'',ICON.none]]);
+    const cards=CANVAS_KEYS.filter(s=>!SCENES[s].grp).map(s=>[s,SCENES[s].name,SCENES[s].g,'']).concat([['file',T.file,thumb,thumbURL?'':(F.bg?ICON.play:ICON.plus)]],YT?[['youtube',T.yt,'linear-gradient(135deg,#4a0f19,#1a1530)',ICON.play]]:[],[['none',T.none,'',ICON.none]]);
     h+=`<h3 class="amb-h">${T.drawn}</h3><div class="amb-cards" role="group" aria-label="${T.drawn}">`;
     h+=cards.map(([key,name,g,ic])=>`<button type="button" class="amb-card${key==='none'||key==='file'&&!F.bg?' amb-plain':''}" data-a="scene" data-v="${key}" data-fk="scene-${key}" aria-pressed="${key===sc}"><span class="amb-th"${g?` style="--amb-g:${g}"`:''}>${ic}</span><span class="amb-nm">${name}</span></button>`).join('');
     if(!YT)h+=`<button type="button" class="amb-card" data-a="ytout" data-fk="ytout" aria-expanded="${!!SH.ytOpen}"><span class="amb-th" style="--amb-g:linear-gradient(135deg,#4a0f19,#1a1530)">${ICON.play}</span><span class="amb-nm">${T.yt}</span></button>`;
     h+='</div>';
+    const xg=[...new Set(CANVAS_KEYS.filter(s=>SCENES[s].grp).map(s=>SCENES[s].grp))];
+    if(xg.length){h+=`<h3 class="amb-h">${esc(opts.scenesTitle||'')}</h3>`;
+      for(const g of xg){const ks=CANVAS_KEYS.filter(s=>SCENES[s].grp===g);
+        h+=`<h4 class="amb-h amb-hs">${esc(g)}</h4><div class="amb-cards" role="group" aria-label="${esc(g)}">${ks.map(key=>`<button type="button" class="amb-card" data-a="scene" data-v="${key}" data-fk="scene-${key}" aria-pressed="${key===sc}"><span class="amb-th" style="--amb-g:${SCENES[key].g}"><span class="amb-emo" aria-hidden="true">${SCENES[key].ic}</span></span><span class="amb-nm">${esc(SCENES[key].name)}</span></button>`).join('')}</div>`}}
     if(sc==='file')h+=`<div class="amb-box"><div class="amb-line"><span class="amb-fname${F.bg?'':' amb-empty'}"${F.bg?` title="${esc(F.bg.name)}"`:''}>${F.bg?esc(F.bg.name||T.file):T.noFile}</span>
         <label class="amb-b amb-pri"><input type="file" class="amb-vh" accept="image/*,video/*" data-file="bg" data-fk="file-bg">${F.bg?T.change:T.pickBg}</label>${F.bg?`<button type="button" class="amb-b" data-a="rm" data-k="bg" data-fk="rm-bg">${T.remove}</button>`:''}</div><p class="amb-note">${T.bgTip}</p>
         ${k==='image'?sw('ovRain',st.ovRain,T.ovRain,T.ovRainSub)+sw('ovGlow',st.ovGlow,T.ovGlow,T.ovGlowSub):''}</div>`;
@@ -2365,7 +2391,7 @@ function createAmbience(opts){
 let AMB=null;
 function amb(){if(AMB)return AMB;let m=document.getElementById('ambMount');
   if(!m){m=document.createElement('div');m.id='ambMount';m.className='ambm';document.body.insertBefore(m,document.getElementById('app'))}
-  AMB=createAmbience({mount:m,store:'ds-amb',media:CFG.media||'https://desk-screen.home-panel.workers.dev/media/',youtube:true,toast:t=>toast(t),onChange:ambSync,clock:()=>hm(Date.now())});return AMB}
+  AMB=createAmbience({scenes:occScenes(),scenesTitle:'خلفيات المناسبات والفصول',mount:m,store:'ds-amb',media:CFG.media||'https://desk-screen.home-panel.workers.dev/media/',youtube:true,toast:t=>toast(t),onChange:ambSync,clock:()=>hm(Date.now())});return AMB}
 function ambSync(s){s=s||(AMB&&AMB.state);if(!s)return;
   document.body.classList.toggle('ambbg',s.showing);document.body.classList.toggle('amb',s.showing&&!s.dim);
   const n=document.getElementById('ambNow');if(n)n.textContent=s.nowMus?'♪ '+s.nowMus:'';
