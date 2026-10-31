@@ -482,6 +482,28 @@ body.occ .hero{background:linear-gradient(135deg,color-mix(in srgb,var(--occA) 8
 .temo{font-size:max(22px,calc(var(--u)*6));line-height:1;flex:none}
 .ttl small{display:inline-block;margin-inline-start:8px;font-size:.75em;font-weight:700;color:var(--accentInk);background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:99px;padding:0 8px}
 .ttl small.late{color:#B3261E;background:rgba(179,38,30,.1)}
+/* «ذكرني»: reminder button, badges and the reminder panel */
+.trem{flex:none;width:40px;height:40px;border-radius:12px;color:var(--muted);display:grid;place-items:center}
+.trem svg{width:20px;height:20px}
+.trem.on{color:var(--accentInk);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.nrem{font-weight:700}
+.remhead{flex:1;min-width:0;display:flex;gap:8px;align-items:center;font-size:17px}
+.remhead svg{width:20px;height:20px;flex:none;color:var(--accentInk)}
+.remhead span{overflow-wrap:anywhere}
+.rempanel{margin-top:12px;padding:12px;border:1.5px solid var(--line);border-radius:16px;background:var(--bg)}
+.remrow{display:flex;gap:8px;margin-bottom:10px}
+.remrow input{flex:1;min-width:0;background:var(--surface);color:var(--fg);border:1.5px solid var(--line);border-radius:12px;padding:10px;font-size:16px}
+.remacts{display:grid;gap:8px}
+.remacts .btn{min-height:46px;font-size:15px}
+.rempanel .note{margin:10px 0 0;font-size:13px}
+.nbtns{flex:none;display:flex;gap:2px;align-items:center}
+.nfoot>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nsh.on{color:var(--accentInk)}
+.nsh svg{width:18px;height:18px}
+.tcw{display:inline-flex;align-items:center;gap:2px;max-width:100%}
+.tbell{flex:none;width:34px;height:36px;border-radius:12px;display:grid;place-items:center;color:var(--muted)}
+.tbell svg{width:18px;height:18px}
+.tbell.on{color:var(--accentInk);background:color-mix(in srgb,var(--accent) 12%,transparent)}
 .hemo{display:inline-block;margin-inline-end:.15em}
 .streak{display:flex;gap:8px;flex-wrap:wrap}
 .streak span{font-size:14px;font-weight:700;border-radius:99px;padding:3px 12px;background:color-mix(in srgb,var(--gold) 30%,transparent);color:var(--goldInk)}
@@ -972,10 +994,87 @@ function softChime(){const c=actx();if(!c)return;try{[[784,0],[1047,.18]].forEac
 document.addEventListener('pointerdown',e=>{if(e.button>0)return;const t=e.target&&e.target.closest&&e.target.closest('button,[data-a],label,select,a,input[type=checkbox],summary');if(t&&!t.disabled)clickSnd()},true);
 document.addEventListener('click',()=>{actx()},{capture:true,passive:true});
 
+/* ---------- «ذكرني»: reminders through the phone's own calendar ----------
+   A web page can't wake itself while it is closed, so a reminder is handed to the phone's calendar
+   (a Google Calendar link, or an .ics file for iPhone and other calendars), and the calendar rings on time.
+   The chosen time is also kept on the task or note ('rem', city-local 'YYYY-MM-DDTHH:MM'): a badge shows it,
+   and if the app is open at that minute it chimes and shows the reminder too. */
+ICON.bell='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
+const remOK=r=>typeof r==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(r);
+const remMs=r=>Date.parse(r+':00Z')-city().tz*36e5;   /* city-local wall time -> the moment it happens */
+const remZ=ms=>new Date(ms).toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');   /* 20261031T094000Z */
+function fmtRem(r){const [d,t]=r.split('T'),i=[0,1,2,3,4,5,6].find(k=>localDay(k)===d);
+  return (i===0?'اليوم':i===1?'بكرة':i!=null?WD_AR[new Date(d+'T00:00Z').getUTCDay()]:gStr(Date.parse(d)))+' '+fmtT(t)}
+const fmtRemShort=r=>r.split('T')[0]===localDay()?fmtT(r.split('T')[1]):fmtRem(r);   /* note cards: just the time when it is today */
+function remItem(k,id){return k==='t'?allTasks().find(x=>x.id===id):noteGet(id)}
+function remSet(k,id,r){
+  if(k==='t'){const all=lsGet('ds-tasks',[])||[],t=all.find(x=>x.id===id);if(!t)return;if(r)t.rem=r;else delete t.rem;saveTasks(all)}
+  else{const a=notes(),n=a.find(x=>x.id===id);if(!n)return;if(r)n.rem=r;else delete n.rem;saveNotes(a)}}
+function remTitle(k,x){if(k==='t')return (x.emoji?x.emoji+' ':'')+x.title;
+  const first=x.type==='list'&&((x.items||[]).find(i=>!i.d&&(i.t||'').trim())||(x.items||[]).find(i=>(i.t||'').trim()));
+  return x.title||(x.type==='list'?(first?'قائمة: '+first.t.trim().slice(0,40):'قائمة'):x.type==='voice'?'تسجيل صوتي':x.type==='file'?(x.name||'ملف'):(x.text||'').trim().slice(0,60)||'ملاحظة')}
+function remDetails(k,x){let s='';
+  if(k==='n'&&x.type==='note')s=(x.text||'').trim().slice(0,800);
+  else if(k==='n'&&x.type==='list')s=(x.items||[]).filter(i=>(i.t||'').trim()).map(i=>(i.d?'✓ ':'• ')+i.t).join('\n');
+  return (s?s+'\n\n':'')+'من تطبيق شاشة المكتب: '+location.href.split('#')[0]}
+function remDefault(k,x){if(remOK(x.rem)&&remMs(x.rem)>Date.now())return x.rem.split('T');
+  const td=localDay(),d=k==='t'&&x.date&&x.date>td?x.date:td;
+  if(k==='t'&&x.time&&remMs(d+'T'+x.time)>Date.now()+6e4)return [d,x.time];   /* the task's own time, while it is still ahead */
+  if(d!==td)return [d,'09:00'];
+  /* otherwise the next full hour that is at least half an hour away (it may be tomorrow) */
+  const l=new Date(Math.ceil((Date.now()+city().tz*36e5+18e5)/36e5)*36e5).toISOString();return [l.slice(0,10),l.slice(11,16)]}
+function remPanel(k,x){const [d,t]=remDefault(k,x);
+  return `<div class="rempanel" id="rem-panel" data-k="${k}" data-id="${x.id}">
+    <div class="remrow"><input type="date" id="rem-d" value="${d}" min="${localDay()}" aria-label="اليوم"><input type="time" id="rem-t" value="${t}" aria-label="الوقت"></div>
+    <div class="remacts"><button type="button" class="btn primary" data-a="rem-g">${ICON.bell} ذكرني في تقويم جوجل</button><button type="button" class="btn line" data-a="rem-ics">ملف تقويم (آيفون وغيره)</button>${remOK(x.rem)?'<button type="button" class="btn line danger" data-a="rem-x">إلغاء التذكير</button>':''}</div>
+    <p class="note">يفتح التقويم والموعد جاهز، اضغط «حفظ» ويوصلك إشعار في وقته حتى لو التطبيق مقفل. في تقويم جوجل خلّ التنبيه «في وقت الحدث» إذا تبيه بالضبط.</p></div>`}
+function remAsk(){try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{})}catch(e){}}
+function remOpen(k,id,asSheet){const x=remItem(k,id);if(!x)return;remAsk();
+  if(k==='n'&&!asSheet){const box=document.getElementById('ne-rem');if(!box)return;box.innerHTML=box.innerHTML?'':remPanel(k,x);
+    if(box.innerHTML)setTimeout(()=>{try{box.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}},30);return}
+  sheetOpen('rem',`<div class="shead"><b class="remhead">${ICON.bell}<span>ذكرني: ${esc(remTitle(k,x))}</span></b><button type="button" class="shx" data-a="close" aria-label="إغلاق">×</button></div>${remPanel(k,x)}`,'ذكرني')}
+function remPick(){const p=document.getElementById('rem-panel');if(!p)return null;
+  const d=(document.getElementById('rem-d')||{}).value||'',t=(document.getElementById('rem-t')||{}).value||'';
+  if(!/^\d{4}-\d\d-\d\d$/.test(d)||!/^\d\d:\d\d$/.test(t)){toast('اختر اليوم والوقت');return null}
+  const r=d+'T'+t;if(remMs(r)<=Date.now()+3e4){toast('هذا الوقت فات، اختر وقتاً بعده');return null}
+  const x=remItem(p.dataset.k,p.dataset.id);return x?{k:p.dataset.k,id:p.dataset.id,r,x}:null}
+function remGoogle(){const o=remPick();if(!o)return;const ms=remMs(o.r);
+  const url='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('⏰ '+remTitle(o.k,o.x))+
+    '&dates='+remZ(ms)+'/'+remZ(ms+15*6e4)+'&details='+encodeURIComponent(remDetails(o.k,o.x));
+  remSet(o.k,o.id,o.r);
+  const w=window.open(url,'_blank');if(w){try{w.opener=null}catch(e){}}else location.href=url;
+  remDone(o)}
+const icsText=s=>String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+function icsFold(line){const enc=new TextEncoder(),out=[];let cur='',n=0;   /* lines of at most 75 bytes, as calendars expect */
+  for(const ch of line){const b=enc.encode(ch).length;if(n+b>74){out.push(cur);cur=' ';n=1}cur+=ch;n+=b}out.push(cur);return out.join('\r\n')}
+function remIcs(){const o=remPick();if(!o)return;const ms=remMs(o.r),ttl=icsText('⏰ '+remTitle(o.k,o.x));
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Office Desk//AR','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
+    'UID:'+o.id+'-'+remZ(ms)+'@office-desk','DTSTAMP:'+remZ(Date.now()),'DTSTART:'+remZ(ms),'DTEND:'+remZ(ms+15*6e4),
+    'SUMMARY:'+ttl,'DESCRIPTION:'+icsText(remDetails(o.k,o.x)),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+ttl,'TRIGGER:PT0S','END:VALARM',
+    'END:VEVENT','END:VCALENDAR'].map(icsFold).join('\r\n')+'\r\n';
+  remSet(o.k,o.id,o.r);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar;charset=utf-8'}));a.download='tadhkeer.ics';
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},5000);
+  remDone(o)}
+function remBtnSync(r){const nb=document.querySelector('#sheetwrap .nact [data-a="rem"][data-k="n"]');   /* the editor's button, not the card's bell behind it */if(nb)nb.innerHTML=ICON.bell+' '+(r?fmtRem(r):'ذكرني')}
+const remInSheet=()=>document.getElementById('sheetwrap')?.dataset.kind==='rem';
+function remDone(o){toast('⏰ '+fmtRem(o.r)+'، احفظ الموعد في التقويم');
+  if(remInSheet()){closeSettings();render()}else{const b=document.getElementById('ne-rem');if(b)b.innerHTML='';remBtnSync(o.r)}}
+function remClear(){const p=document.getElementById('rem-panel');if(!p)return;const k=p.dataset.k;remSet(k,p.dataset.id,null);
+  toast('ألغيت التذكير هنا، وإذا حفظته في التقويم احذفه من هناك');
+  if(remInSheet()){closeSettings();render()}else{p.parentNode.innerHTML='';remBtnSync('')}}
+function remNotify(title){try{if(!('Notification' in window)||Notification.permission!=='granted'||!navigator.serviceWorker)return;
+  navigator.serviceWorker.ready.then(g=>g.showNotification('⏰ '+title,{body:'تذكير من شاشة المكتب',tag:'rem-'+title,icon:'./icon-192.png',badge:'./icon-192.png',vibrate:[200,100,200],requireInteraction:true})).catch(()=>{})}catch(e){}}
+/* the open app also reminds at that minute (within five minutes, once) */
+function remDue(now){
+  for(const [k,list] of [['t',allTasks().filter(x=>!x.done)],['n',notes()]])for(const x of list){if(!remOK(x.rem))continue;
+    const ms=remMs(x.rem),id='rem'+x.id+x.rem;if(now>=ms&&now-ms<3e5&&!S.fired[id]){S.fired[id]=1;return remTitle(k,x)}}
+  return ''}
+
 /* ---------- reminders (pre-adhan, water/move, Friday Kahf) ---------- */
 function nudge(msg,ms){S.nudge={msg,until:Date.now()+(ms||18e4)};if(S.audioOK)softChime()}
 const CARE=['💧 وقت كوب ماء','🚶‍♀️ حركة خفيفة دقيقتين','👀 أريحي عينيك: انظري بعيداً 20 ثانية','🧘‍♀️ عدّلي جلستك وخذي نفساً عميقاً'];
-function careTick(st){const now=st.now;
+function careTick(st){const now=st.now;{const r=remDue(now);if(r){nudge('⏰ '+r,6e5);remNotify(r);return true}}
   if(ST.pre){for(const k of PR_KEYS){const t=st.T[k]-ST.pre*6e4,id=st.T.day+k+'pre';if(now>=t&&now-t<9e4&&!S.fired[id]){S.fired[id]=1;nudge('⏰ باقي '+(ST.pre===5?'5 دقائق':ST.pre===10?'10 دقائق':ST.pre+' دقيقة')+' على أذان '+prName(k,st.T),ST.pre*6e4-2e4);return true}}}
   const lt=new Date(now+city().tz*36e5),wd=lt.getUTCDay(),mins=lt.getUTCHours()*60+lt.getUTCMinutes();
   if(wd===5&&mins>=9*60&&mins<9*60+2&&!S.fired[st.T.day+'kahf']){S.fired[st.T.day+'kahf']=1;nudge('📖 جمعة مباركة، وقت سورة الكهف',6e5);return true}
@@ -1031,7 +1130,7 @@ function nCard(n){const ttl=n.title?`<b class="nt">${esc(n.title)}</b>`:'';let b
     body=`<ul class="nl">${it.slice(0,8).map((i,ix)=>`<li><button class="nck${i.d?' on':''}" data-a="nl-tog" data-id="${n.id}" data-i="${ix}" aria-pressed="${!!i.d}" aria-label="${esc(i.t||'بند')}">${i.d?ICON.check:''}</button><span${i.d?' class="dn"':''}>${esc(i.t)}</span></li>`).join('')}</ul>${it.length>8?`<span class="nmore">+${it.length-8} بنود</span>`:''}${it.length?`<span class="nprog num">${dn} من ${it.length}</span>`:''}`}
   else if(n.type==='voice')body=`<div class="nv"><button class="nplay" data-a="nv-play" data-id="${n.id}" aria-label="شغّلي التسجيل">${S.nPlay===n.id?'❚❚':'▶'}</button><span class="num">${fmtDur(n.dur)}</span><span>🎙️</span></div>`;
   else if(n.type==='file')body=/^image\//.test(n.mime||'')?`<img class="nimg" data-nimg="${n.id}" alt="${esc(n.title||n.name)}">`:`<div class="nfile"><span class="nfi">${fileEmoji(n)}</span><span class="nfn">${esc(n.name)}</span><small>${fmtSize(n.size)}</small></div>`;
-  return `<article class="ncard" style="--nc:${NCOL[n.color]||NCOL.y}" data-a="n-open" data-id="${n.id}" tabindex="0" role="button" aria-label="افتحي ${esc(n.title||n.name||'الملاحظة')}">${ttl}${body}<span class="nfoot"><span>${relDay(n.upd||n.cre||Date.now())}</span><button class="nsh" data-a="n-share" data-id="${n.id}" aria-label="مشاركة">${ICON.share}</button></span></article>`}
+  return `<article class="ncard" style="--nc:${NCOL[n.color]||NCOL.y}" data-a="n-open" data-id="${n.id}" tabindex="0" role="button" aria-label="افتحي ${esc(n.title||n.name||'الملاحظة')}">${ttl}${body}<span class="nfoot"><span>${remOK(n.rem)&&remMs(n.rem)>Date.now()-864e5?`<b class="nrem">⏰ ${fmtRemShort(n.rem)}</b>`:relDay(n.upd||n.cre||Date.now())}</span><span class="nbtns"><button class="nsh${remOK(n.rem)?' on':''}" data-a="rem" data-k="n" data-sheet="1" data-id="${n.id}" aria-label="ذكرني">${ICON.bell}</button><button class="nsh" data-a="n-share" data-id="${n.id}" aria-label="مشاركة">${ICON.share}</button></span></span></article>`}
 function pNotes(){const f=S.nf||'all',all=notes().sort((a,b)=>(b.upd||0)-(a.upd||0)),list=f==='all'?all:all.filter(n=>n.type===f);
   let h=`<div class="nbar"><button class="nb" data-a="n-new" data-v="note">📝<span>ملاحظة</span></button><button class="nb" data-a="n-new" data-v="list">✅<span>قائمة</span></button><button class="nb" data-a="n-rec">🎙️<span>تسجيل</span></button><label class="nb">📎<span>صورة أو ملف</span><input type="file" class="vh" id="n-file" multiple></label></div>`;
   h+=`<div class="seg nf" role="group" aria-label="تصفية الملاحظات">${[['all','الكل'],['note','ملاحظات'],['list','قوائم'],['voice','تسجيلات'],['file','ملفات']].map(([k,l])=>`<button data-a="nf" data-v="${k}" aria-pressed="${k===f}">${l}</button>`).join('')}</div>`;
@@ -1053,8 +1152,8 @@ function openNote(id,fresh){const n=noteGet(id);if(!n)return;S.edit=id;stopSpeak
   else body=`<div class="nview" id="ne-view"><p class="note">أفتح الملف…</p></div>`;
   const canDict=n.type==='note',canSpeak=n.type!=='voice';
   const html=`<div class="shead"><input id="ne-title" class="ntin" placeholder="${n.type==='file'?esc(n.name||'العنوان'):'العنوان'}" maxlength="80" value="${esc(n.title||'')}"><button type="button" class="shx" data-a="close" aria-label="إغلاق">×</button></div>
-    ${n.type==='file'||n.type==='voice'?'':colors}${body}
-    <div class="row nact">${canDict?`<button type="button" class="btn line" data-a="dict" data-t="ne-text">${ICON.mic} إملاء</button>`:''}${canSpeak?'<button type="button" class="btn line" data-a="speak">🔊 اقرأ لي</button>':''}<button type="button" class="btn line" data-a="n-share" data-id="${n.id}">${ICON.share} مشاركة</button><button type="button" class="btn line danger" data-a="n-del">حذف</button><button type="button" class="btn primary" data-a="close">تم</button></div>`;
+    ${n.type==='file'||n.type==='voice'?'':colors}${body}<div id="ne-rem"></div>
+    <div class="row nact">${canDict?`<button type="button" class="btn line" data-a="dict" data-t="ne-text">${ICON.mic} إملاء</button>`:''}${canSpeak?'<button type="button" class="btn line" data-a="speak">🔊 اقرأ لي</button>':''}<button type="button" class="btn line" data-a="n-share" data-id="${n.id}">${ICON.share} مشاركة</button><button type="button" class="btn line" data-a="rem" data-k="n" data-id="${n.id}">${ICON.bell} ${remOK(n.rem)?fmtRem(n.rem):'ذكرني'}</button><button type="button" class="btn line danger" data-a="n-del">حذف</button><button type="button" class="btn primary" data-a="close">تم</button></div>`;
   sheetOpen('note',html,'ملاحظة');
   if(n.type==='voice')idbGet('n:'+id).then(r=>{const a=document.getElementById('ne-audio');if(a&&r&&r.blob)a.src=nUrl(id,r.blob)});
   if(n.type==='file')fillViewer(n);
@@ -1132,8 +1231,8 @@ function confetti(big){if(RM)return;const c=document.createElement('canvas');c.c
   for(let i=0;i<N;i++)P.push({x:W/2+(Math.random()-.5)*W*.35,y:Hh*.6,vx:(Math.random()-.5)*(big?17:11),vy:-Math.random()*(big?19:13)-5,r:Math.random()*6.3,vr:(Math.random()-.5)*.3,w:6+Math.random()*6,h:8+Math.random()*8,c:cols[i%cols.length]});
   const t0=performance.now();let l=t0;(function f(t){const dt=Math.min(32,t-l)/16;l=t;x.clearRect(0,0,W,Hh);for(const p of P){p.vy+=.45*dt;p.vx*=.99;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()}
     if(t-t0<(big?3400:2300))requestAnimationFrame(f);else c.remove()})(t0)}
-function tRow(x){const late=!x.done&&x.date&&x.date<localDay();
-  return `<div class="task${x.done?' isdone':''}"><button class="chk${x.done?' on':''}" data-a="${x.done?'undo':'done'}" data-id="${x.id}" aria-label="${x.done?'رجّعيها':'خلصت'}: ${esc(x.title)}">${ICON.check}</button><span class="temo" aria-hidden="true">${x.emoji||'✨'}</span><span class="ttl">${esc(x.title)}${x.time?`<small class="num">${fmtT(x.time)}</small>`:''}${late?'<small class="late">متأخرة</small>':''}</span><button class="del" data-a="del" data-id="${x.id}" aria-label="احذفي">×</button></div>`}
+function tRow(x){const late=!x.done&&x.date&&x.date<localDay(),rr=!x.done&&remOK(x.rem)?x.rem:'',same=!!(rr&&x.time&&rr===(x.date||localDay())+'T'+x.time);
+  return `<div class="task${x.done?' isdone':''}"><button class="chk${x.done?' on':''}" data-a="${x.done?'undo':'done'}" data-id="${x.id}" aria-label="${x.done?'رجّعيها':'خلصت'}: ${esc(x.title)}">${ICON.check}</button><span class="temo" aria-hidden="true">${x.emoji||'✨'}</span><span class="ttl">${esc(x.title)}${x.time?`<small class="num">${same?'⏰ ':''}${fmtT(x.time)}</small>`:''}${rr&&!same?`<small class="num">⏰ ${fmtRem(rr)}</small>`:''}${late?'<small class="late">متأخرة</small>':''}</span>${x.done?'':`<button class="trem${rr?' on':''}" data-a="rem" data-k="t" data-id="${x.id}" aria-label="ذكرني${rr?': '+fmtRem(rr):''}">${ICON.bell}</button>`}<button class="del" data-a="del" data-id="${x.id}" aria-label="احذفي">×</button></div>`}
 function addForm(){const day=S.addDay||localDay(),emo=S.addEmo||'';
   const opts=[0,1,2,3,4,5,6].map(i=>{const t=nowDayMs(i),iso=isoD(t);return `<option value="${iso}"${iso===day?' selected':''}>${i===0?'اليوم':i===1?'بكرة':WD_AR[new Date(t).getUTCDay()]} · ${gStr(t)}</option>`}).join('');
   return `<form class="add2" data-form="add"><div class="addr"><button type="button" class="emob" data-a="emo-open" aria-expanded="${!!S.emoOpen}" aria-label="اختاري إيموجي">${emo||'😊'}</button><input id="newtask" placeholder="مهمة جديدة" autocomplete="off" maxlength="140" aria-label="مهمة جديدة"><button type="button" class="micb" data-a="dict" data-t="newtask" aria-label="إملاء صوتي">${ICON.mic}</button><button class="btn primary" type="submit">أضف</button></div>
@@ -1144,7 +1243,7 @@ function pWeek(){const all=allTasks(),today=localDay();let h='<div class="wk">';
     const list=all.filter(x=>i===0?(x.done?x.doneAt===iso:(!x.date||x.date<=iso)):(x.date===iso)).sort(byTime);
     const oc=occOnDay(t).filter(o=>o.k!=='season')[0];
     h+=`<section class="wday${i===0?' today':''}"><header><b>${i===0?'اليوم':i===1?'بكرة':WD_AR[wd]}</b><span class="num">${i<2?WD_AR[wd]+' ':''}${gStr(t)}</span>${ST.hijriTasks&&hOf(t)?`<span class="wh">${hStr(t)}</span>`:''}${oc?`<span class="wocc">${oc.e} ${esc(oc.n)}</span>`:''}<button class="wadd" data-a="wadd" data-v="${iso}" aria-label="أضيفي مهمة">+</button></header>
-      ${list.length?`<div class="wchips">${list.map(x=>`<button class="tchip${x.done?' on':''}" data-a="${x.done?'undo':'done'}" data-id="${x.id}" aria-pressed="${!!x.done}">${x.emoji||'✨'} <span>${esc(x.title)}</span>${x.time?`<small class="num">${fmtT(x.time)}</small>`:''}</button>`).join('')}</div>`:'<p class="wempty">لا مهام</p>'}</section>`}
+      ${list.length?`<div class="wchips">${list.map(x=>`<span class="tcw"><button class="tchip${x.done?' on':''}" data-a="${x.done?'undo':'done'}" data-id="${x.id}" aria-pressed="${!!x.done}">${x.emoji||'✨'} <span>${esc(x.title)}</span>${x.time?`<small class="num">${fmtT(x.time)}</small>`:''}</button>${x.done?'':`<button class="tbell${remOK(x.rem)?' on':''}" data-a="rem" data-k="t" data-id="${x.id}" aria-label="ذكرني: ${esc(x.title)}${remOK(x.rem)?' ('+fmtRem(x.rem)+')':''}">${ICON.bell}</button>`}</span>`).join('')}</div>`:'<p class="wempty">لا مهام</p>'}</section>`}
   return h+'</div>'+addForm()+'<button class="btn line" data-a="wk-share">'+ICON.share+' مشاركة جدول الأسبوع</button>'}
 function weekText(){const all=allTasks();let s='📅 جدول مهامي للأسبوع\n';for(let i=0;i<7;i++){const t=nowDayMs(i),iso=isoD(t),wd=new Date(t).getUTCDay();
   const list=all.filter(x=>i===0?(x.done?x.doneAt===iso:(!x.date||x.date<=iso)):(x.date===iso)).sort(byTime);if(!list.length)continue;
@@ -2444,6 +2543,10 @@ document.addEventListener('click',async e=>{
     case 'rec-cancel':recStop(true);break;
     case 'nf':S.nf=b.dataset.v;render();break;
     case 'n-open':openNote(b.dataset.id);break;
+    case 'rem':remOpen(b.dataset.k,b.dataset.id,!!b.dataset.sheet);break;
+    case 'rem-g':remGoogle();break;
+    case 'rem-ics':remIcs();break;
+    case 'rem-x':remClear();break;
     case 'n-share':noteShare(b.dataset.id||S.edit);break;
     case 'nl-tog':{const n=noteGet(b.dataset.id),it=n&&n.items&&n.items[+b.dataset.i];if(it){it.d=!it.d;noteUpd(n.id,{items:n.items});render()}break}
     case 'nv-play':voiceToggle(b.dataset.id);break;

@@ -1,4 +1,4 @@
-const CACHE = 'office-desk-pwa-v5';
+const CACHE = 'office-desk-pwa-v6';
 const CORE = [
   './',
   './index.html',
@@ -58,4 +58,12 @@ self.addEventListener('fetch', event => {
     }
     return res;
   })));
+});
+// tapping a «ذكرني» notification brings the app forward (or opens it)
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    for (const c of list) if ('focus' in c) return c.focus();
+    return self.clients.openWindow('./');
+  }));
 });
