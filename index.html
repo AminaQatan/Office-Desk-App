@@ -496,7 +496,8 @@ body.occ .hero{background:linear-gradient(135deg,color-mix(in srgb,var(--occA) 8
 .remacts{display:grid;gap:8px}
 .remacts .btn{min-height:46px;font-size:15px}
 .rempanel .note{margin:10px 0 0;font-size:13px}
-.nbtns{display:flex;gap:2px;align-items:center}
+.nbtns{flex:none;display:flex;gap:2px;align-items:center}
+.nfoot>span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nsh.on{color:var(--accentInk)}
 .nsh svg{width:18px;height:18px}
 .tcw{display:inline-flex;align-items:center;gap:2px;max-width:100%}
@@ -1004,21 +1005,24 @@ const remMs=r=>Date.parse(r+':00Z')-city().tz*36e5;   /* city-local wall time ->
 const remZ=ms=>new Date(ms).toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');   /* 20261031T094000Z */
 function fmtRem(r){const [d,t]=r.split('T'),i=[0,1,2,3,4,5,6].find(k=>localDay(k)===d);
   return (i===0?'اليوم':i===1?'بكرة':i!=null?WD_AR[new Date(d+'T00:00Z').getUTCDay()]:gStr(Date.parse(d)))+' '+fmtT(t)}
+const fmtRemShort=r=>r.split('T')[0]===localDay()?fmtT(r.split('T')[1]):fmtRem(r);   /* note cards: just the time when it is today */
 function remItem(k,id){return k==='t'?allTasks().find(x=>x.id===id):noteGet(id)}
 function remSet(k,id,r){
   if(k==='t'){const all=lsGet('ds-tasks',[])||[],t=all.find(x=>x.id===id);if(!t)return;if(r)t.rem=r;else delete t.rem;saveTasks(all)}
   else{const a=notes(),n=a.find(x=>x.id===id);if(!n)return;if(r)n.rem=r;else delete n.rem;saveNotes(a)}}
 function remTitle(k,x){if(k==='t')return (x.emoji?x.emoji+' ':'')+x.title;
-  return x.title||(x.type==='list'?'قائمة':x.type==='voice'?'تسجيل صوتي':x.type==='file'?(x.name||'ملف'):(x.text||'').trim().slice(0,60)||'ملاحظة')}
+  const first=x.type==='list'&&((x.items||[]).find(i=>!i.d&&(i.t||'').trim())||(x.items||[]).find(i=>(i.t||'').trim()));
+  return x.title||(x.type==='list'?(first?'قائمة: '+first.t.trim().slice(0,40):'قائمة'):x.type==='voice'?'تسجيل صوتي':x.type==='file'?(x.name||'ملف'):(x.text||'').trim().slice(0,60)||'ملاحظة')}
 function remDetails(k,x){let s='';
   if(k==='n'&&x.type==='note')s=(x.text||'').trim().slice(0,800);
   else if(k==='n'&&x.type==='list')s=(x.items||[]).filter(i=>(i.t||'').trim()).map(i=>(i.d?'✓ ':'• ')+i.t).join('\n');
   return (s?s+'\n\n':'')+'من تطبيق شاشة المكتب: '+location.href.split('#')[0]}
-function remDefault(k,x){if(remOK(x.rem))return x.rem.split('T');
+function remDefault(k,x){if(remOK(x.rem)&&remMs(x.rem)>Date.now())return x.rem.split('T');
   const td=localDay(),d=k==='t'&&x.date&&x.date>td?x.date:td;
-  if(k==='t'&&x.time)return [d,x.time];
+  if(k==='t'&&x.time&&remMs(d+'T'+x.time)>Date.now()+6e4)return [d,x.time];   /* the task's own time, while it is still ahead */
   if(d!==td)return [d,'09:00'];
-  const h=new Date(Date.now()+city().tz*36e5).getUTCHours()+1;return [d,h>23?'23:59':pad(h)+':00']}
+  /* otherwise the next full hour that is at least half an hour away (it may be tomorrow) */
+  const l=new Date(Math.ceil((Date.now()+city().tz*36e5+18e5)/36e5)*36e5).toISOString();return [l.slice(0,10),l.slice(11,16)]}
 function remPanel(k,x){const [d,t]=remDefault(k,x);
   return `<div class="rempanel" id="rem-panel" data-k="${k}" data-id="${x.id}">
     <div class="remrow"><input type="date" id="rem-d" value="${d}" min="${localDay()}" aria-label="اليوم"><input type="time" id="rem-t" value="${t}" aria-label="الوقت"></div>
@@ -1059,9 +1063,6 @@ function remDone(o){toast('⏰ '+fmtRem(o.r)+'، احفظ الموعد في ال
 function remClear(){const p=document.getElementById('rem-panel');if(!p)return;const k=p.dataset.k;remSet(k,p.dataset.id,null);
   toast('ألغيت التذكير هنا، وإذا حفظته في التقويم احذفه من هناك');
   if(remInSheet()){closeSettings();render()}else{p.parentNode.innerHTML='';remBtnSync('')}}
-/* the «شغلك الحين» card: the task's time, with the reminder merged in when it is the same moment */
-function remNow(t){const tm=t.time?`<p class="num">الوقت: ${fmtT(t.time)}`:'';if(!remOK(t.rem))return tm?tm+'</p>':'';
-  return t.time&&t.rem===(t.date||localDay())+'T'+t.time?tm+' · ⏰ مع تذكير</p>':(tm?tm+'</p>':'')+`<p class="num">⏰ التذكير: ${fmtRem(t.rem)}</p>`}
 function remNotify(title){try{if(!('Notification' in window)||Notification.permission!=='granted'||!navigator.serviceWorker)return;
   navigator.serviceWorker.ready.then(g=>g.showNotification('⏰ '+title,{body:'تذكير من شاشة المكتب',tag:'rem-'+title,icon:'./icon-192.png',badge:'./icon-192.png',vibrate:[200,100,200],requireInteraction:true})).catch(()=>{})}catch(e){}}
 /* the open app also reminds at that minute (within five minutes, once) */
@@ -1129,7 +1130,7 @@ function nCard(n){const ttl=n.title?`<b class="nt">${esc(n.title)}</b>`:'';let b
     body=`<ul class="nl">${it.slice(0,8).map((i,ix)=>`<li><button class="nck${i.d?' on':''}" data-a="nl-tog" data-id="${n.id}" data-i="${ix}" aria-pressed="${!!i.d}" aria-label="${esc(i.t||'بند')}">${i.d?ICON.check:''}</button><span${i.d?' class="dn"':''}>${esc(i.t)}</span></li>`).join('')}</ul>${it.length>8?`<span class="nmore">+${it.length-8} بنود</span>`:''}${it.length?`<span class="nprog num">${dn} من ${it.length}</span>`:''}`}
   else if(n.type==='voice')body=`<div class="nv"><button class="nplay" data-a="nv-play" data-id="${n.id}" aria-label="شغّلي التسجيل">${S.nPlay===n.id?'❚❚':'▶'}</button><span class="num">${fmtDur(n.dur)}</span><span>🎙️</span></div>`;
   else if(n.type==='file')body=/^image\//.test(n.mime||'')?`<img class="nimg" data-nimg="${n.id}" alt="${esc(n.title||n.name)}">`:`<div class="nfile"><span class="nfi">${fileEmoji(n)}</span><span class="nfn">${esc(n.name)}</span><small>${fmtSize(n.size)}</small></div>`;
-  return `<article class="ncard" style="--nc:${NCOL[n.color]||NCOL.y}" data-a="n-open" data-id="${n.id}" tabindex="0" role="button" aria-label="افتحي ${esc(n.title||n.name||'الملاحظة')}">${ttl}${body}<span class="nfoot"><span>${remOK(n.rem)&&remMs(n.rem)>Date.now()-864e5?`<b class="nrem">⏰ ${fmtRem(n.rem)}</b>`:relDay(n.upd||n.cre||Date.now())}</span><span class="nbtns"><button class="nsh${remOK(n.rem)?' on':''}" data-a="rem" data-k="n" data-sheet="1" data-id="${n.id}" aria-label="ذكرني">${ICON.bell}</button><button class="nsh" data-a="n-share" data-id="${n.id}" aria-label="مشاركة">${ICON.share}</button></span></span></article>`}
+  return `<article class="ncard" style="--nc:${NCOL[n.color]||NCOL.y}" data-a="n-open" data-id="${n.id}" tabindex="0" role="button" aria-label="افتحي ${esc(n.title||n.name||'الملاحظة')}">${ttl}${body}<span class="nfoot"><span>${remOK(n.rem)&&remMs(n.rem)>Date.now()-864e5?`<b class="nrem">⏰ ${fmtRemShort(n.rem)}</b>`:relDay(n.upd||n.cre||Date.now())}</span><span class="nbtns"><button class="nsh${remOK(n.rem)?' on':''}" data-a="rem" data-k="n" data-sheet="1" data-id="${n.id}" aria-label="ذكرني">${ICON.bell}</button><button class="nsh" data-a="n-share" data-id="${n.id}" aria-label="مشاركة">${ICON.share}</button></span></span></article>`}
 function pNotes(){const f=S.nf||'all',all=notes().sort((a,b)=>(b.upd||0)-(a.upd||0)),list=f==='all'?all:all.filter(n=>n.type===f);
   let h=`<div class="nbar"><button class="nb" data-a="n-new" data-v="note">📝<span>ملاحظة</span></button><button class="nb" data-a="n-new" data-v="list">✅<span>قائمة</span></button><button class="nb" data-a="n-rec">🎙️<span>تسجيل</span></button><label class="nb">📎<span>صورة أو ملف</span><input type="file" class="vh" id="n-file" multiple></label></div>`;
   h+=`<div class="seg nf" role="group" aria-label="تصفية الملاحظات">${[['all','الكل'],['note','ملاحظات'],['list','قوائم'],['voice','تسجيلات'],['file','ملفات']].map(([k,l])=>`<button data-a="nf" data-v="${k}" aria-pressed="${k===f}">${l}</button>`).join('')}</div>`;
@@ -1315,10 +1316,9 @@ function pTasks(){const view=S.tv==='week'?'week':'today';
   if(view==='week')return h+pWeek();
   const all=tasks().sort(byTime),open=all.filter(t=>!t.done),done=all.filter(t=>t.done).length,sk=streakNow();
   if(open.length){const t=open[S.skip%open.length];
-    h+=`<section class="now"><div class="lbl">شغلك الحين</div><h2><span class="hemo" aria-hidden="true">${t.emoji||'✨'}</span>${esc(t.title)}</h2>${remNow(t)}
+    h+=`<section class="now"><div class="lbl">شغلك الحين</div><h2><span class="hemo" aria-hidden="true">${t.emoji||'✨'}</span>${esc(t.title)}</h2>${t.time?`<p class="num">الوقت: ${fmtT(t.time)}</p>`:''}
       <div class="row"><button class="btn primary grow" data-a="done" data-id="${t.id}">خلصتها</button>
       ${PAGES.some(p=>p[0]==='focus')?`<button class="btn line" data-a="focus-start">ابدأ ${FOCUS_WORK/6e4} دقيقة</button>`:''}
-      <button class="btn line" data-a="rem" data-k="t" data-id="${t.id}">${ICON.bell} ذكرني</button>
       ${open.length>1?'<button class="btn line" data-a="skip">مو الحين</button>':''}</div></section>`;
     const rest=all.filter(x=>x!==t);
     if(rest.length)h+=`<div class="lbl">مهام اليوم</div><div class="list">${rest.map(tRow).join('')}</div>`;
