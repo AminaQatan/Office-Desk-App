@@ -1563,7 +1563,7 @@ function createAmbience(opts){
   const MAXB=60*1024*1024,FADE=1.5,INT=2,uid='amb'+Math.random().toString(36).slice(2,8);
   const RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
   const T={
-    title:'الجو',close:'إغلاق',bgH:'المشهد',none:'بدون',file:'صورتي',yt:'من يوتيوب',drawn:'مشاهد مرسومة بالكود',
+    title:'الجو',close:'إغلاق',bgH:'المشهد',none:'بدون',file:'صورتي',yt:'من يوتيوب',drawn:'خيارات أخرى',
     pickBg:'اختر صورة أو فيديو',change:'غيّر',remove:'شيل',bgTip:'الأفضل صورة أو فيديو بنفس اتجاه الشاشة.',
     paired:'اخترت لك الأصوات اللي تناسب المشهد، وتقدر تغيّرها تحت.',
     ytLabel:'رابط يوتيوب',ytPh:'الصق رابط الفيديو أو البث هنا',ytGo:'شغّل',ytBad:'الرابط هذا ما هو رابط يوتيوب.',
@@ -1624,7 +1624,7 @@ function createAmbience(opts){
 
   /* ---------------- settings (localStorage) ---------------- */
   const XS=opts.scenes&&typeof opts.scenes==='object'?opts.scenes:{};   // extra drawn scenes from the host (the occasion backgrounds)
-  const CANVAS_KEYS=['glass','room','storm','sea'].concat(Object.keys(XS));
+  const CANVAS_KEYS=Object.keys(XS);   /* no drawn scenes in the list: real footage only (the drawing code stays, unused) */
   const sceneOK=k=>k==='none'||k==='file'||(YT&&k==='youtube')||CANVAS_KEYS.includes(k)||(typeof k==='string'&&Object.prototype.hasOwnProperty.call(LIB,k));
   const ROT=[0,10,20,30];   // «وضع المشاهد» auto change, minutes
   const DEF={scene:'desk',amb:'rain-window',mus:'none',thunder:false,motion:true,ovRain:false,ovGlow:false,vAmb:.5,vMus:.85,mix:2,withTimer:true,allPages:false,yt:'',ytSound:false,copyUrl:String(opts.standaloneUrl||''),rotate:0,clock:true};
@@ -2496,7 +2496,7 @@ async function cacheMedia(){const fs=mediaFiles();let n=0;toast('أحفظ الم
 let AMB=null;
 function amb(){if(AMB)return AMB;let m=document.getElementById('ambMount');
   if(!m){m=document.createElement('div');m.id='ambMount';m.className='ambm';document.body.insertBefore(m,document.getElementById('app'))}
-  AMB=createAmbience({scenes:occScenes(),scenesTitle:'خلفيات المناسبات والفصول',mount:m,store:'ds-amb',media:MEDIA,lib:MY_SCENES,youtube:true,toast:t=>toast(t),onChange:ambSync,clock:()=>hm(Date.now())});return AMB}
+  AMB=createAmbience({scenes:{},scenesTitle:'خلفيات المناسبات والفصول',mount:m,store:'ds-amb',media:MEDIA,lib:MY_SCENES,youtube:true,toast:t=>toast(t),onChange:ambSync,clock:()=>hm(Date.now())});return AMB}
 function ambSync(s){s=s||(AMB&&AMB.state);if(!s)return;
   document.body.classList.toggle('ambbg',s.showing);document.body.classList.toggle('amb',s.showing&&!s.dim);
   const n=document.getElementById('ambNow');if(n)n.textContent=s.nowMus?'♪ '+s.nowMus:'';
