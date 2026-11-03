@@ -626,6 +626,15 @@ body.amb .hjline{color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.55)}
 body.amb .hjline span{color:rgba(255,255,255,.82)}
 
 @media (min-aspect-ratio:5/4){.page[data-p="tasks"][data-v="week"]{display:flex}.wk{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}}
+/* TV mode: a clear focus ring for the remote, no mouse pointer */
+html.tv,html.tv *{cursor:none}
+html.tv :focus{outline:3px solid var(--accent,#E07A5F)!important;outline-offset:3px!important;box-shadow:0 0 0 7px color-mix(in srgb,var(--accent,#E07A5F) 28%,transparent)!important}
+html.tv .amb-show :focus{outline-color:#fff!important;box-shadow:0 0 0 7px rgba(255,255,255,.3)!important}
+html.tv button:focus,html.tv summary:focus{transform:scale(1.05);transition:transform .12s}
+html.tv input[data-tvro]{caret-color:transparent}
+html.tv input[data-tvedit],html.tv textarea[data-tvedit]{outline-style:dashed!important}
+/* the TV app can't record, dictate, read aloud or share (the TV keyboard has its own microphone) */
+html.tvapp [data-a="dict"],html.tvapp [data-a="n-rec"],html.tvapp [data-a="speak"],html.tvapp [data-a="n-share"],html.tvapp [data-a="wk-share"],html.tvapp [data-a="greet"]{display:none!important}
 </style>
 </head>
 <body>
@@ -1039,7 +1048,7 @@ function remDefault(k,x){if(remOK(x.rem)&&remMs(x.rem)>Date.now())return x.rem.s
   if(d!==td)return [d,'09:00'];
   /* otherwise the next full hour that is at least half an hour away (it may be tomorrow) */
   const l=new Date(Math.ceil((Date.now()+city().tz*36e5+18e5)/36e5)*36e5).toISOString();return [l.slice(0,10),l.slice(11,16)]}
-function remPanel(k,x){const [d,t]=remDefault(k,x),wa=waGet();
+function remPanel(k,x){if(remTvApp())return remPanelTv(k,x);const [d,t]=remDefault(k,x),wa=waGet();
   return `<div class="rempanel" id="rem-panel" data-k="${k}" data-id="${x.id}">
     <div class="remrow"><input type="date" id="rem-d" value="${d}" min="${localDay()}" aria-label="اليوم"><input type="time" id="rem-t" value="${t}" aria-label="الوقت"></div>
     <div class="remacts"><button type="button" class="btn primary" data-a="rem-g">${ICON.bell} ذكرني في تقويم جوجل</button><button type="button" class="btn line" data-a="rem-ics">ملف تقويم (آيفون وغيره)</button>
@@ -1048,6 +1057,14 @@ function remPanel(k,x){const [d,t]=remDefault(k,x),wa=waGet();
       ${wa?`<button type="button" class="remwa-num" data-a="rem-wa-edit">يرسل إلى <span dir="ltr">+${wa}</span> · تغيير الرقم</button>`:''}${remOK(x.rem)?'<button type="button" class="btn line danger" data-a="rem-x">إلغاء التذكير</button>':''}</div>
     <p class="note">التقويم: يفتح والموعد جاهز، اضغط «حفظ» ويوصلك إشعار في وقته حتى لو التطبيق مقفل. في تقويم جوجل خلّ التنبيه «في وقت الحدث» إذا تبيه بالضبط.</p>
     <p class="note">واتساب: يفتح محادثتك والتذكير مكتوب، اضغط «إرسال» ويوصلك الحين. واتساب ما يسمح بجدولة الرسائل، فللتنبيه في وقته اضغط على الرسالة مطولاً واختر التذكير إذا كان متوفراً عندك.</p></div>`}
+/* «ذكرني» in the TV app: a TV has no calendar, files or WhatsApp to open, so the reminder shows here on the screen in its time */
+const remTvApp=()=>document.documentElement.classList.contains('tvapp');
+function remPanelTv(k,x){const [d,t]=remDefault(k,x);
+  return `<div class="rempanel" id="rem-panel" data-k="${k}" data-id="${x.id}">
+    <div class="remrow"><input type="date" id="rem-d" value="${d}" min="${localDay()}" aria-label="اليوم"><input type="time" id="rem-t" value="${t}" aria-label="الوقت"></div>
+    <div class="remacts"><button type="button" class="btn primary" data-a="rem-tv">${ICON.bell} ذكرني هنا على الشاشة</button>${remOK(x.rem)?'<button type="button" class="btn line danger" data-a="rem-x">إلغاء التذكير</button>':''}</div>
+    <p class="note">يظهر التذكير على الشاشة في وقته ما دام التطبيق مفتوحاً.</p></div>`}
+function remTv(){const o=remPick();if(!o)return;remSet(o.k,o.id,o.r);remDone(o,'يظهر التذكير هنا على الشاشة في وقته')}
 function remAsk(){try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{})}catch(e){}}
 function remOpen(k,id,asSheet){const x=remItem(k,id);if(!x)return;remAsk();
   if(k==='n'&&!asSheet){const box=document.getElementById('ne-rem');if(!box)return;box.innerHTML=box.innerHTML?'':remPanel(k,x);
@@ -1092,7 +1109,7 @@ const remInSheet=()=>document.getElementById('sheetwrap')?.dataset.kind==='rem';
 function remDone(o,msg){toast('⏰ '+fmtRem(o.r)+'، '+(msg||'احفظ الموعد في التقويم'));
   if(remInSheet()){closeSettings();render()}else{const b=document.getElementById('ne-rem');if(b)b.innerHTML='';remBtnSync(o.r)}}
 function remClear(){const p=document.getElementById('rem-panel');if(!p)return;const k=p.dataset.k;remSet(k,p.dataset.id,null);
-  toast('ألغيت التذكير هنا، وإذا حفظته في التقويم احذفه من هناك');
+  toast(remTvApp()?'ألغيت التذكير':'ألغيت التذكير هنا، وإذا حفظته في التقويم احذفه من هناك');
   if(remInSheet()){closeSettings();render()}else{p.parentNode.innerHTML='';remBtnSync('')}}
 function remNotify(title){try{if(!('Notification' in window)||Notification.permission!=='granted'||!navigator.serviceWorker)return;
   navigator.serviceWorker.ready.then(g=>g.showNotification('⏰ '+title,{body:'تذكير من شاشة المكتب',tag:'rem-'+title,icon:'./icon-192.png',badge:'./icon-192.png',vibrate:[200,100,200],requireInteraction:true})).catch(()=>{})}catch(e){}}
@@ -2576,6 +2593,7 @@ document.addEventListener('click',async e=>{
     case 'n-open':openNote(b.dataset.id);break;
     case 'rem':remOpen(b.dataset.k,b.dataset.id,!!b.dataset.sheet);break;
     case 'rem-g':remGoogle();break;
+    case 'rem-tv':remTv();break;
     case 'rem-ics':remIcs();break;
     case 'rem-x':remClear();break;
     case 'rem-wa':remWa();break;
@@ -2634,6 +2652,119 @@ document.addEventListener('change',async e=>{const id=e.target.id;
   else if(id==='s-restore'){const f=e.target.files&&e.target.files[0];e.target.value='';if(f)backupRestore(f)}
   else if(id==='s-prev'){S.occPrev=e.target.value||null;OB.key='';occRefresh();toast(S.occPrev?'المعاينة ظاهرة خلف الإعدادات، احفظي أو ألغي لرؤيتها كاملة':'رجعت الخلفية الأصلية')}});
 document.addEventListener('input',e=>{const t=e.target;if(!S.edit||!document.getElementById('sheetwrap'))return;if(t.id==='ne-title'||t.id==='ne-text'||(t.dataset&&t.dataset.li!=null)){clearTimeout(nSaveT);nSaveT=setTimeout(noteFromSheet,350)}});
+/* ---------- TV mode: Android TV / Google TV (Sony and others) ----------
+   On in the «شاشة المكتب» TV app (its WebView adds "OfficeDeskTV" to the user agent) or with ?tv=1 in a TV browser.
+   The remote's arrows move the focus to the nearest button in that direction (inside whatever is open on top),
+   OK presses it (on a text box it opens the TV keyboard), and Back closes what is open, then returns to the
+   first page, then leaves the app. */
+const TVAPP=/OfficeDeskTV/i.test(navigator.userAgent);
+const TV=TVAPP||/[?&]tv=1\b/.test(location.search);
+if(TV){
+  const R=document.documentElement;R.classList.add('tv');if(TVAPP)R.classList.add('tvapp');
+  const FOC='button:not([disabled]),a[href],summary,input:not([type=hidden]):not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  const OVER='.amb-show,.amb-sheet:not(.amb-inline),#sheetwrap,.start';
+  const layer=()=>document.querySelector('.amb-show')||document.querySelector('.amb-sheet:not(.amb-inline)')||document.getElementById('sheetwrap')||document.querySelector('.start')||document.body;
+  const shown=el=>{if(!el||!el.getClientRects||!el.getClientRects().length)return false;
+    if(el.checkVisibility&&!el.checkVisibility({visibilityProperty:true}))return false;
+    const d=el.closest('details:not([open])');if(d&&!(el.tagName==='SUMMARY'&&el.parentElement===d))return false;   // inside a closed folding list
+    const cs=getComputedStyle(el);return cs.visibility!=='hidden'&&cs.display!=='none'&&!el.closest('[aria-hidden="true"],[inert]')};
+  /* the buttons the remote can reach; a hidden file box inside a label («صورة أو ملف») is reached through its label */
+  const cands=()=>{const out=[];for(const el of layer().querySelectorAll(FOC)){if(!shown(el))continue;const r=el.getBoundingClientRect();
+      if(r.width<4||r.height<4){const l=el.closest('label');if(l&&shown(l)){if(l.tabIndex<0){l.tabIndex=0;l.dataset.tvlab='1'}if(!out.includes(l))out.push(l)}continue}
+      if(!out.includes(el))out.push(el)}return out};
+  const center=r=>[r.left+r.width/2,r.top+r.height/2];
+  const isText=el=>!!el&&(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&/^(text|search|url|tel|email|password|number)$/.test(el.type)));
+  /* the same button again after a redraw: by its action and id, or by its words when it has neither */
+  const fkey=el=>{const d=el.dataset||{},k=[el.tagName,d.a||'',d.v||'',d.id||'',d.k||'',el.id||''].join('|');
+    return d.a||el.id?k:k+'|'+(el.getAttribute('aria-label')||'').slice(0,30)+'|'+(el.textContent||'').trim().slice(0,24)};
+  let lastRect=null,pageKey=null;
+  document.addEventListener('focusin',e=>{const t=e.target;try{lastRect=t.getBoundingClientRect()}catch(x){}
+    if(t&&t.closest&&!t.closest(OVER))pageKey=fkey(t)},true);   // where to come back to when a window closes
+  function nearest(list,r){const [ax,ay]=center(r);let best=null,bd=1e12;for(const el of list){const [bx,by]=center(el.getBoundingClientRect()),d=Math.hypot(bx-ax,by-ay);if(d<bd){bd=d;best=el}}return best}
+  function put(el){if(!el)return false;try{el.focus({preventScroll:true});el.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'})}catch(e){try{el.focus()}catch(x){}}return true}
+
+  /* text boxes stay closed until OK is pressed on them, so the TV keyboard doesn't jump up while moving around */
+  const lock=el=>{if(isText(el)&&!el.readOnly&&!el.dataset.tvedit){el.readOnly=true;el.dataset.tvro='1'}};
+  const _focus=HTMLElement.prototype.focus;
+  HTMLElement.prototype.focus=function(o){
+    if(isText(this)&&!this.dataset.tvedit){const a=document.activeElement;
+      if(a&&a!==this&&a.dataset&&a.dataset.tvedit&&isText(a)){if(this.dataset.tvro){this.readOnly=false;delete this.dataset.tvro}this.dataset.tvedit='1'}   // typing goes on in the next box (a new list line)
+      else lock(this)}
+    return _focus.call(this,o)};
+  function edit(el){try{el.blur()}catch(x){}if(el.dataset.tvro){el.readOnly=false;delete el.dataset.tvro}el.dataset.tvedit='1';
+    _focus.call(el,{preventScroll:true});try{const n=el.value.length;el.setSelectionRange(n,n)}catch(x){}}
+  document.addEventListener('focusout',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.tvedit){delete t.dataset.tvedit;lock(t)}},true);
+  function pick(el){try{if(typeof el.showPicker==='function'){el.showPicker();return}}catch(x){}try{el.click()}catch(x){}}   // dates, times, lists and files open their TV picker
+
+  /* long text (a dhikr, a note) scrolls a step at a time when the next button is far away */
+  function scroller(el){for(let p=el&&el.parentElement;p&&p!==document.body&&p!==R;p=p.parentElement){const cs=getComputedStyle(p);if(/(auto|scroll)/.test(cs.overflowY)&&p.scrollHeight>p.clientHeight+2)return p}return document.scrollingElement||R}
+  const isDoc=sc=>sc===document.scrollingElement||sc===R||sc===document.body;
+  function view(sc){if(isDoc(sc))return[0,innerHeight];const r=sc.getBoundingClientRect();return[Math.max(0,r.top),Math.min(innerHeight,r.bottom)]}
+  const canScroll=(sc,down)=>down?sc.scrollTop+sc.clientHeight<sc.scrollHeight-2:sc.scrollTop>2;
+  function step(sc,down){const [t,b]=view(sc);try{sc.scrollBy({top:(down?1:-1)*Math.round((b-t)*.6),behavior:'smooth'})}catch(x){sc.scrollTop+=(down?1:-1)*Math.round((b-t)*.6)}return true}
+  function inner(el){for(const x of el.querySelectorAll('*')){const cs=getComputedStyle(x);if(/(auto|scroll)/.test(cs.overflowY)&&x.scrollHeight>x.clientHeight+2&&x.clientHeight>20)return x}return null}
+  function move(dir){const list=cands();if(!list.length)return false;const cur=list.includes(document.activeElement)?document.activeElement:null;
+    if(!cur)return put(lastRect?nearest(list,lastRect):list[0]);
+    if(dir==='ArrowDown'||dir==='ArrowUp'){const t=inner(cur);if(t&&canScroll(t,dir==='ArrowDown'))return step(t,dir==='ArrowDown')}   // text inside the card (a long dhikr) scrolls first
+    const a=cur.getBoundingClientRect(),[ax,ay]=center(a),horiz=dir==='ArrowRight'||dir==='ArrowLeft';
+    /* the nearest button in that direction: left and right stay in the same row (or within 20°), up and down look wider (60°, then anything on that side) */
+    const pass=cone=>{let best=null,bs=1e12;
+      for(const el of list){if(el===cur)continue;const b=el.getBoundingClientRect(),[bx,by]=center(b),dx=bx-ax,dy=by-ay;let main,side;
+        if(dir==='ArrowRight'){if(dx<=6)continue;main=Math.max(0,b.left-a.right);side=Math.abs(dy)}
+        else if(dir==='ArrowLeft'){if(dx>=-6)continue;main=Math.max(0,a.left-b.right);side=Math.abs(dy)}
+        else if(dir==='ArrowDown'){if(dy<=6)continue;main=Math.max(0,b.top-a.bottom);side=Math.abs(dx)}
+        else{if(dy>=-6)continue;main=Math.max(0,a.top-b.bottom);side=Math.abs(dx)}
+        if(cone){const beam=horiz?b.bottom>a.top+2&&b.top<a.bottom-2:b.right>a.left+2&&b.left<a.right-2;if(!beam&&side>(horiz?Math.abs(dx)*.36:Math.abs(dy)*1.7+Math.min(a.width,b.width)/2))continue}
+        const sc=main+side*2.4;if(sc<bs){bs=sc;best=el}}
+      return best};
+    const best=pass(true)||(horiz?null:pass(false));
+    if(dir==='ArrowDown'||dir==='ArrowUp'){const down=dir==='ArrowDown',sc=scroller(cur),[vt,vb]=view(sc),h=vb-vt;
+      if(best){const b=best.getBoundingClientRect(),far=down?b.top>vb+h*.35:b.bottom<vt-h*.35;
+        if(far&&(isDoc(sc)||sc.contains(best))&&canScroll(sc,down))return step(sc,down)}
+      else if(canScroll(sc,down))return step(sc,down)}
+    return best?put(best):true}   // at the edge: stay put (and don't let the page switch)
+
+  window.addEventListener('keydown',e=>{const k=e.key,t=document.activeElement;
+    if(k==='Enter'){
+      if(!t||t===document.body||!layer().contains(t)){if(move('ArrowDown'))e.preventDefault();return}
+      if(isText(t)&&t.dataset.tvro&&!t.dataset.tvedit){e.preventDefault();e.stopImmediatePropagation();edit(t);return}
+      if(t.dataset&&t.dataset.tvlab){const i=t.querySelector('input,select,textarea');if(i){e.preventDefault();e.stopImmediatePropagation();i.type==='file'?pick(i):i.click()}return}
+      if(t.tagName==='INPUT'&&/^(checkbox|radio)$/.test(t.type)){e.preventDefault();e.stopImmediatePropagation();t.click();return}
+      if(t.tagName==='SELECT'||(t.tagName==='INPUT'&&/^(date|time|datetime-local|month|week|color|file)$/.test(t.type))){e.preventDefault();e.stopImmediatePropagation();pick(t);return}
+      return}
+    if(/^Media(PlayPause|Play|Pause)$/.test(k)){e.preventDefault();try{amb().toggleSound()}catch(x){}return}   // the remote's play/pause button
+    if(!/^Arrow(Up|Down|Left|Right)$/.test(k))return;
+    if(isText(t)&&t.dataset.tvedit&&(k==='ArrowLeft'||k==='ArrowRight'))return;   // the caret moves inside the text being typed
+    if(t&&t.tagName==='INPUT'&&t.type==='range'&&(k==='ArrowLeft'||k==='ArrowRight'))return;   // sliders keep left and right
+    const show=document.querySelector('.amb-show');
+    if(show&&(k==='ArrowLeft'||k==='ArrowRight')&&!(t&&show.contains(t)&&t.matches('button')))return;   // in the scenes view left and right change the scene
+    move(k);e.preventDefault();e.stopImmediatePropagation()},true);
+
+  /* the app redraws its pages; keep the focus on the same button when it does */
+  const _render=render;
+  render=function(){const el=document.activeElement,key=el&&el!==document.body?fkey(el):null;const out=_render.apply(this,arguments);
+    if(key&&(!document.activeElement||document.activeElement===document.body)){const m=cands().find(x=>fkey(x)===key);if(m)try{m.focus({preventScroll:true})}catch(e){}}return out};
+  /* a window opened or closed: the focus goes into it, or back to the button that opened it (not in the scenes view, which stays clean) */
+  setInterval(()=>{const L=layer();if(L.classList&&L.classList.contains('amb-show'))return;
+    const a=document.activeElement;if(a&&a!==document.body&&L.contains(a)&&shown(a))return;
+    const list=cands();if(!list.length)return;
+    const back=L===document.body&&pageKey?list.find(x=>fkey(x)===pageKey):null;
+    put(back||(lastRect?nearest(list,lastRect):list[0]))},300);
+
+  /* Back on the remote (the TV app asks first): leave the text box, close what is open, go to the first page; false lets the app close */
+  window.tvBack=()=>{const a=document.activeElement;
+    if(a&&isText(a)&&a.dataset.tvedit){a.blur();return true}
+    if(document.querySelector('.amb-show')){closeShow();return true}
+    if(AMB&&AMB.state.sheetOpen){AMB.closeSheet();return true}
+    if(document.getElementById('sheetwrap')){closeSettings();return true}
+    if(document.querySelector('.start'))return false;
+    if(S.page!==0){go(0);return true}
+    return false};
+  /* the TV app went to the background (Home, another app) or came back: the sound stops and starts again */
+  const TVP={was:false};
+  window.tvPause=()=>{try{TVP.was=!!(AMB&&AMB.state&&AMB.state.playing);if(TVP.was)AMB.stopSound()}catch(x){}try{stopSound()}catch(x){}};
+  window.tvResume=()=>{try{if(TVP.was&&AMB)AMB.startSound()}catch(x){}TVP.was=false};
+}
 document.addEventListener('keydown',e=>{if(document.querySelector('.amb-sheet:not(.amb-inline)')||(AMB&&AMB.state.show))return;if(document.getElementById('sheetwrap')){if(e.key==='Escape')closeSettings();else if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.li!=null){e.preventDefault();document.querySelector('[data-a="ne-add"]')?.click()}return}
   if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('ncard')){e.preventDefault();openNote(e.target.dataset.id);return}if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
   if(e.key==='ArrowLeft'){go(S.page+1);e.preventDefault()}else if(e.key==='ArrowRight'){go(S.page-1);e.preventDefault()}});

@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+}
+
+// every build gets a higher version number, so the TV installs it over the old one and keeps its data
+def stamp = (int) (System.currentTimeMillis().intdiv(60000L) - 29400000L)
+
+android {
+    namespace = 'com.aminaqatan.officedesk'
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = 'com.aminaqatan.officedesk'
+        minSdk = 21
+        targetSdk = 34
+        versionCode = stamp
+        versionName = '1.0.' + stamp
+    }
+
+    // the same key every time, so updates install over the app already on the TV
+    signingConfigs {
+        release {
+            storeFile = file('office-desk-tv.p12')
+            storeType = 'pkcs12'
+            storePassword = 'officedesk-tv'
+            keyAlias = 'officedesk'
+            keyPassword = 'officedesk-tv'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = false
+            signingConfig = signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
+}

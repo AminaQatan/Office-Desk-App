@@ -1,0 +1,89 @@
+# Builds the Office Desk TV app (Android TV / Google TV) from tv-app.zip
+# and puts it on the site as tv.apk: https://aminaqatan.github.io/Office-Desk-App/tv.apk
+name: TV app
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tv-app*.zip'
+      - .github/workflows/tv-app.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: tv-app
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack the TV app project
+        id: src
+        run: |
+          zip=$(ls tv-app*.zip 2>/dev/null | head -n 1)   # a phone may upload it as "tv-app (1).zip"
+          if [ -z "$zip" ]; then
+            echo "tv-app.zip is not in the repository yet: upload it and this runs again."
+            echo "ok=no" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          unzip -q -o "$zip" -d "$RUNNER_TEMP/src"
+          echo "ok=yes" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v4
+        if: steps.src.outputs.ok == 'yes'
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.src.outputs.ok == 'yes'
+        with:
+          gradle-version: '8.9'
+
+      - name: Build the APK
+        if: steps.src.outputs.ok == 'yes'
+        working-directory: ${{ runner.temp }}/src/tv-app
+        run: gradle --no-daemon assembleRelease
+
+      - name: Put tv.apk on the site
+        if: steps.src.outputs.ok == 'yes'
+        run: |
+          cp "$RUNNER_TEMP/src/tv-app/app/build/outputs/apk/release/app-release.apk" tv.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tv.apk
+          git commit -m "TV app: new tv.apk" || { echo "tv.apk did not change"; exit 0; }
+          for i in 1 2 3; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep 10
+          done
+          exit 1
+
+      - name: Rebuild the site
+        if: steps.src.outputs.ok == 'yes'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds"
+
+      - name: Keep a copy in Releases
+        if: steps.src.outputs.ok == 'yes'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete tv-app --cleanup-tag -y || true
+          gh release create tv-app tv.apk --title "Office Desk TV app" --notes "Android TV / Google TV app. Short link for the TV: aminaqatan.github.io/Office-Desk-App/tv.apk"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.src.outputs.ok == 'yes'
+        with:
+          name: tv-apk
+          path: tv.apk

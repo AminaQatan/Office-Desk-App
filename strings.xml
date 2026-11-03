@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">شاشة المكتب</string>
+    <string name="no_app">ما فيه تطبيق على التلفاز يفتح هذا الرابط</string>
+    <string name="no_files">ما فيه تطبيق على التلفاز لاختيار الملفات</string>
+    <string name="offline_title">التلفاز غير متصل بالإنترنت</string>
+    <string name="offline_hint">أول تشغيل للتطبيق يحتاج اتصالاً بالإنترنت.</string>
+    <string name="retry">إعادة المحاولة</string>
+</resources>

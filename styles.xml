@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="desk_bg">#FDF6EC</color>
+    <style name="Desk" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@color/desk_bg</item>
+    </style>
+</resources>
